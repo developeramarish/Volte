@@ -137,11 +137,11 @@ namespace Gommon
 
         public static LocalEmoji ToEmoji(this string str) => new LocalEmoji(str);
 
-        public static bool TryDeleteAsync(this IDeletable deletable, RestRequestOptions options = null)
+        public static async Task<bool> TryDeleteAsync(this IDeletable deletable, RestRequestOptions options = null)
         {
             try
             {
-                deletable.DeleteAsync(options);
+                await deletable.DeleteAsync(options);
                 return true;
             }
             catch

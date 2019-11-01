@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Disqord;
 using Disqord.Events;
 using Gommon;
 using Volte.Core.Models;
@@ -11,12 +12,15 @@ namespace Volte.Services
     {
         private readonly LoggingService _logger;
         private readonly DatabaseService _db;
+        private readonly IServiceProvider _provider;
 
         public PingChecksService(LoggingService loggingService,
-            DatabaseService databaseService)
+            DatabaseService databaseService,
+            IServiceProvider serviceProvider)
         {
             _logger = loggingService;
             _db = databaseService;
+            _provider = serviceProvider;
         } 
             
 
@@ -27,18 +31,18 @@ namespace Volte.Services
         {
             var data = _db.GetData(args.Message.Guild);
             if (data.Configuration.Moderation.MassPingChecks &&
-                !args.Context.User.IsAdmin(args.Context.ServiceProvider))
+                !args.Message.Author.Cast<CachedMember>().IsAdmin(_provider))
             {
                 _logger.Debug(LogSource.Service,
                     "Received a message to check for ping threshold violations.");
                 var content = args.Message.Content;
                 if (content.ContainsIgnoreCase("@everyone") ||
                     content.ContainsIgnoreCase("@here") ||
-                    args.Message.MentionedUsers.Count > 10)
+                    args.Message.UserMentions.Count > 10)
                 {
-                    await args.Message.DeleteAsync();
+                    _ = await args.Message.TryDeleteAsync();
                     _logger.Debug(LogSource.Service,
-                        "Deleted a message for violating the ping threshold.");
+                        "Attempted to delete a message for violating the ping threshold. If it was not deleted, I do not have proper permissions in that guild.");
                 }
             }
         }

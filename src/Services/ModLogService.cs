@@ -49,7 +49,7 @@ namespace Volte.Services
                     await e.WithDescription(sb.AppendLine($"**Action:** {args.ActionType}")
                         .AppendLine($"**Moderator:** {args.Moderator}")
                         .AppendLine($"**Messages Cleared:** {args.Count}")
-                        .AppendLine($"**Channel:** {args.Context.Channel.Mention}")
+                        .AppendLine($"**Channel:** <#{args.Context.Channel.Id}>")
                         .AppendLine($"**Time:** {args.Time.FormatFullTime()}, {args.Time.FormatDate()}")
                         .ToString())
                         .SendToAsync(c);
@@ -62,7 +62,7 @@ namespace Volte.Services
                     await e.WithDescription(sb.AppendLine($"**Action:** {args.ActionType}")
                             .AppendLine($"**Moderator:** {args.Moderator}")
                             .AppendLine($"**Message Deleted:** {args.TargetId}")
-                            .AppendLine($"**Channel:** {args.Context.Channel.Mention}")
+                            .AppendLine($"**Channel:** <#{args.Context.Channel.Id}>")
                             .AppendLine($"**Time:** {args.Time.FormatFullTime()}, {args.Time.FormatDate()}")
                             .ToString())
                         .SendToAsync(c);

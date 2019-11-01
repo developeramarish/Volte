@@ -1,9 +1,11 @@
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Discord.WebSocket;
-using Discord;
+using Disqord;
+using Disqord.Bot;
+using Disqord.Events;
 using Gommon;
+using Volte.Commands;
 using Volte.Core.Models.EventArgs;
 
 namespace Volte.Services
@@ -11,11 +13,14 @@ namespace Volte.Services
     //thanks MODiX for the idea and some of the code (definitely the regex lol)
     public class QuoteService : VolteEventService
     {
-        private readonly DiscordShardedClient _client;
+        private readonly DiscordBot _bot;
+        private readonly DatabaseService _db;
 
-        public QuoteService(DiscordShardedClient client)
+        public QuoteService(DiscordBot bot,
+            DatabaseService databaseService)
         {
-            _client = client;
+            _bot = bot;
+            _db = databaseService;
         }
 
         private static readonly Regex JumpUrlPattern = new Regex(
@@ -27,27 +32,28 @@ namespace Volte.Services
 
         private async Task OnMessageReceivedAsync(MessageReceivedEventArgs args)
         {
-            if (!args.Context.GuildData.Extras.AutoParseQuoteUrls) return;
+            var ctx = VolteContext.Create(_bot, string.Empty, args.Message.Cast<CachedUserMessage>());
+            if (!ctx.GuildData.Extras.AutoParseQuoteUrls) return;
             foreach (Match match in JumpUrlPattern.Matches(args.Message.Content))
             {
                 if (ulong.TryParse(match.Groups["GuildId"].Value, out _)
                     && ulong.TryParse(match.Groups["ChannelId"].Value, out var channelId)
                     && ulong.TryParse(match.Groups["MessageId"].Value, out var messageId))
                 {
-                    var c = _client.GetChannel(channelId);
+                    var c = _bot.GetChannel(channelId);
                     if (c is ITextChannel channel)
                     {
                         var m = await channel.GetMessageAsync(messageId);
                         if (m is null) return;
-                        await args.Context.CreateEmbedBuilder()
+                        await ctx.CreateEmbedBuilder()
                             .WithAuthor(m.Author)
-                            .WithDescription(Format.Code(m.Content))
-                            .AddField("Quoted By", $"**{args.Context.User}** in {args.Context.Channel.Mention}")
-                            .SendToAsync(args.Context.Channel);
+                            .WithDescription($"```{m.Content}```")
+                            .AddField("Quoted By", $"**{ctx.Member.DisplayName}#{ctx.Member.Discriminator}** in <#{ctx.Channel.Id}>")
+                            .SendToAsync(ctx.Channel);
 
                         if (match.Groups["Prelink"].Value.IsNullOrEmpty() &&
                             match.Groups["Postlink"].Value.IsNullOrEmpty())
-                            _ = await args.Context.Message.TryDeleteAsync();
+                            _ = await args.Message.TryDeleteAsync();
                     }
                 }
             }

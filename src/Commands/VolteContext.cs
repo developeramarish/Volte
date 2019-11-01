@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
+using Disqord;
+using Disqord.Bot;
 using Qmmands;
 using Gommon;
 using Volte.Core.Models.Guild;
@@ -9,34 +9,33 @@ using Volte.Services;
 
 namespace Volte.Commands
 {
-    public sealed class VolteContext : CommandContext
+    public sealed class VolteContext : DiscordCommandContext
     {
         private readonly EmojiService _emojiService;
 
-        public static VolteContext Create(SocketMessage msg, IServiceProvider provider) 
-            => new VolteContext(msg, provider);
+        public static VolteContext Create(DiscordBot bot, string prefix, CachedUserMessage msg) 
+            => new VolteContext(bot, prefix, msg);
 
         // ReSharper disable once SuggestBaseTypeForParameter
-        private VolteContext(SocketMessage msg, IServiceProvider provider)
+        public VolteContext(DiscordBot bot, string prefix, CachedUserMessage msg) : base(bot, prefix, msg)
         {
-            provider.Get(out _emojiService);
-            provider.Get<DatabaseService>(out var db);
-            provider.Get(out Client);
-            ServiceProvider = provider;
-            Guild = msg.Channel.Cast<SocketTextChannel>()?.Guild;
-            Channel = msg.Channel.Cast<SocketTextChannel>();
-            User = msg.Author.Cast<SocketGuildUser>();
-            Message = msg.Cast<SocketUserMessage>();
+            bot.Get(out _emojiService);
+            bot.Get<DatabaseService>(out var db);
+            Bot = bot;
+            Guild = msg.Channel.Cast<CachedTextChannel>()?.Guild;
+            Channel = msg.Channel.Cast<CachedTextChannel>();
+            User = msg.Author.Cast<CachedMember>();
+            Message = msg;
             GuildData = db.GetData(Guild);
             Now = DateTimeOffset.UtcNow;
         }
 
-        public readonly DiscordShardedClient Client;
-        public readonly IServiceProvider ServiceProvider;
-        public readonly SocketGuild Guild;
-        public readonly SocketTextChannel Channel;
-        public readonly SocketGuildUser User;
-        public readonly SocketUserMessage Message;
+        public override DiscordBot Bot { get; }
+        public override ICachedMessageChannel Channel { get; }
+        public override CachedGuild Guild { get; }
+        public override CachedMember Member { get; }
+        public override CachedUserMessage Message { get; }
+        public override CachedUser User { get; }
         public readonly GuildData GuildData;
         public readonly DateTimeOffset Now;
 
@@ -44,18 +43,18 @@ namespace Volte.Commands
 
         public Task ReactSuccessAsync() => Message.AddReactionAsync(_emojiService.X.ToEmoji());
 
-        public Embed CreateEmbed(string content) => new EmbedBuilder().WithSuccessColor().WithAuthor(User)
+        public LocalEmbed CreateEmbed(string content) => new LocalEmbedBuilder().WithSuccessColor().WithAuthor(User)
             .WithDescription(content).Build();
 
-        public EmbedBuilder CreateEmbedBuilder(string content = null) => new EmbedBuilder()
+        public LocalEmbedBuilder CreateEmbedBuilder(string content = null) => new LocalEmbedBuilder()
             .WithSuccessColor().WithAuthor(User).WithDescription(content ?? string.Empty);
 
         public Task ReplyAsync(string content) => Channel.SendMessageAsync(content);
 
-        public Task ReplyAsync(Embed embed) => embed.SendToAsync(Channel);
+        public Task ReplyAsync(LocalEmbed embed) => embed.SendToAsync(Channel);
 
-        public Task ReplyAsync(EmbedBuilder embed) => embed.SendToAsync(Channel);
+        public Task ReplyAsync(LocalEmbedBuilder embed) => embed.SendToAsync(Channel);
 
-        public Task ReactAsync(string unicode) => Message.AddReactionAsync(new Emoji(unicode));
+        public Task ReactAsync(string unicode) => Message.AddReactionAsync(new LocalEmoji(unicode));
     }
 }

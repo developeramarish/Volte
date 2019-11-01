@@ -30,5 +30,6 @@
         <ProjectReference Include="..\submodules\Disqord\src\Disqord.Core\Disqord.Core.csproj" />
         <ProjectReference Include="..\submodules\Disqord\src\Disqord.Rest\Disqord.Rest.csproj" />
         <ProjectReference Include="..\submodules\Disqord\src\Disqord\Disqord.csproj" />
+        <ProjectReference Include="..\submodules\Disqord\src\Disqord.Bot\Disqord.Bot.csproj" />
     </ItemGroup>
 </Project>
