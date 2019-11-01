@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Discord.WebSocket;
+using Disqord;
 using Gommon;
 
 namespace Volte.Core.Models.Guild
@@ -42,35 +42,35 @@ namespace Volte.Core.Models.Guild
         public string LeavingMessage { get; set; }
 
         [JsonPropertyName("welcome_color")]
-        public uint WelcomeColor { get; set; }
+        public int WelcomeColor { get; set; }
 
         [JsonPropertyName("welcome_dm_message")]
         public string WelcomeDmMessage { get; set; }
 
-        public string FormatWelcomeMessage(SocketGuildUser user) 
+        public string FormatWelcomeMessage(CachedMember user) 
             => WelcomeMessage.ReplaceIgnoreCase("{ServerName}", user.Guild.Name)
                 .ReplaceIgnoreCase("{GuildName}", user.Guild.Name)
-                .ReplaceIgnoreCase("{UserName}", user.Username)
+                .ReplaceIgnoreCase("{UserName}", user.Name)
                 .ReplaceIgnoreCase("{UserMention}", user.Mention)
                 .ReplaceIgnoreCase("{OwnerMention}", user.Guild.Owner.Mention)
                 .ReplaceIgnoreCase("{UserTag}", user.Discriminator)
                 .ReplaceIgnoreCase("{MemberCount}", user.Guild.MemberCount)
                 .ReplaceIgnoreCase("{UserString}", user);
 
-        public string FormatLeavingMessage(SocketGuildUser user) 
+        public string FormatLeavingMessage(CachedMember user) 
             => LeavingMessage.ReplaceIgnoreCase("{ServerName}", user.Guild.Name)
                 .ReplaceIgnoreCase("{GuildName}", user.Guild.Name)
-                .ReplaceIgnoreCase("{UserName}", user.Username)
+                .ReplaceIgnoreCase("{UserName}", user.Name)
                 .ReplaceIgnoreCase("{UserMention}", user.Mention)
                 .ReplaceIgnoreCase("{OwnerMention}", user.Guild.Owner.Mention)
                 .ReplaceIgnoreCase("{UserTag}", user.Discriminator)
                 .ReplaceIgnoreCase("{MemberCount}", user.Guild.MemberCount)
                 .ReplaceIgnoreCase("{UserString}", user);
 
-        public string FormatDmMessage(SocketGuildUser user)
+        public string FormatDmMessage(CachedMember user)
             => WelcomeDmMessage.ReplaceIgnoreCase("{ServerName}", user.Guild.Name)
                 .ReplaceIgnoreCase("{GuildName}", user.Guild.Name)
-                .ReplaceIgnoreCase("{UserName}", user.Username)
+                .ReplaceIgnoreCase("{UserName}", user.Name)
                 .ReplaceIgnoreCase("{UserMention}", user.Mention)
                 .ReplaceIgnoreCase("{OwnerMention}", user.Guild.Owner.Mention)
                 .ReplaceIgnoreCase("{UserTag}", user.Discriminator)

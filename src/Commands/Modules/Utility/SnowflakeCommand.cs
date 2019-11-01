@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Threading.Tasks;
-using Discord;
+using Disqord;
 using Gommon;
 using Qmmands;
 using Volte.Commands.Results;
@@ -14,10 +14,10 @@ namespace Volte.Commands.Modules
         [Remarks("snowflake {id}")]
         public Task<ActionResult> SnowflakeAsync(ulong id)
         {
-            var date = SnowflakeUtils.FromSnowflake(id);
+            var s = new Snowflake(id);
             return Ok(new StringBuilder()
-                .AppendLine($"**Date:** {date.FormatDate()}")
-                .AppendLine($"**Time**: {date.FormatFullTime()}")
+                .AppendLine($"**Date:** {s.CreatedAt.FormatDate()}")
+                .AppendLine($"**Time**: {s.CreatedAt.FormatFullTime()}")
                 .ToString());
         }
     }

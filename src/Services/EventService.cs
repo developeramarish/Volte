@@ -6,6 +6,8 @@ using System.Net;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Net;
+using Disqord;
+using Disqord.Events;
 using Gommon;
 using Humanizer;
 using Qmmands;
@@ -58,10 +60,12 @@ namespace Volte.Services
             if (Config.EnabledFeatures.PingChecks)
                 await _pingchecks.DoAsync(args);
 
+            var data = _db.GetData(args.Message.Guild);
+
             var prefixes = new List<string>
             {
-                args.Data.Configuration.CommandPrefix, $"<@{args.Context.Client.CurrentUser.Id}> ",
-                $"<@!{args.Context.Client.CurrentUser.Id}> "
+                data.Configuration.CommandPrefix, $"<@{args.Client.CurrentUser.Id}> ",
+                $"<@!{args.Client.CurrentUser.Id}> "
             };
 
             if (CommandUtilities.HasAnyPrefix(args.Message.Content, prefixes, StringComparison.OrdinalIgnoreCase, out _,
@@ -84,16 +88,16 @@ namespace Volte.Services
             await _quoteService.DoAsync(args);
         }
 
-        public async Task OnShardReady(ShardReadyEventArgs args)
+        public async Task OnShardReady(ReadyEventArgs args)
         {
-            var guilds = args.Shard.Guilds.Count;
-            var users = args.Shard.Guilds.SelectMany(x => x.Users).DistinctBy(x => x.Id).Count();
-            var channels = args.Shard.Guilds.SelectMany(x => x.Channels).DistinctBy(x => x.Id).Count();
+            var guilds = args.Client.Guilds.Count;
+            var users = args.Client.Guilds.SelectMany(x => x.Value.Members).DistinctBy(x => x.Value.Id).Count();
+            var channels = args.Client.Guilds.SelectMany(x => x.Value.Channels).DistinctBy(x => x.Value.Id).Count();
 
             _logger.PrintVersion();
             _logger.Info(LogSource.Volte, "Use this URL to invite me to your guilds:");
-            _logger.Info(LogSource.Volte, $"{args.Shard.GetInviteUrl()}");
-            _logger.Info(LogSource.Volte, $"Logged in as {args.Shard.CurrentUser}, shard {args.Shard.ShardId}");
+            _logger.Info(LogSource.Volte, $"{args.Client.GetInviteUrl()}");
+            _logger.Info(LogSource.Volte, $"Logged in as {args.Client.CurrentUser}");
             _logger.Info(LogSource.Volte, "Connected to:");
             _logger.Info(LogSource.Volte, $"    {"guild".ToQuantity(guilds)}");
             _logger.Info(LogSource.Volte, $"    {"user".ToQuantity(users)}");

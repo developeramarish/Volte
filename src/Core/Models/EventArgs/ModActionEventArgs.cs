@@ -1,20 +1,20 @@
 using System;
-using Discord.WebSocket;
+using Disqord;
 using Volte.Commands;
 
 namespace Volte.Core.Models.EventArgs
 {
     public class ModActionEventArgs : System.EventArgs
     {
-        public SocketGuildUser Moderator { get; private set; }
+        public CachedMember Moderator { get; private set; }
         public VolteContext Context { get; private set; }
         public ModActionType ActionType { get; private set; }
         public string Reason { get; private set; }
         public ulong? TargetId { get; private set; }
-        public SocketUser TargetUser { get; private set; }
+        public CachedUser TargetUser { get; private set; }
         public int? Count { get; private set; }
         public DateTimeOffset Time { get; private set; }
-        public SocketGuild Guild { get; private set; }
+        public CachedGuild Guild { get; private set; }
 
         public static ModActionEventArgs New => new ModActionEventArgs();
 
@@ -24,7 +24,7 @@ namespace Volte.Core.Models.EventArgs
             return this;
         }
 
-        public ModActionEventArgs WithModerator(SocketGuildUser user)
+        public ModActionEventArgs WithModerator(CachedMember user)
         {
             Moderator = user;
             return this;
@@ -48,7 +48,7 @@ namespace Volte.Core.Models.EventArgs
             return this;
         }
 
-        public ModActionEventArgs WithTarget(SocketUser user)
+        public ModActionEventArgs WithTarget(CachedUser user)
         {
             TargetUser = user;
             return this;
@@ -66,7 +66,7 @@ namespace Volte.Core.Models.EventArgs
             return this;
         }
 
-        public ModActionEventArgs WithGuild(SocketGuild guild)
+        public ModActionEventArgs WithGuild(CachedGuild guild)
         {
             Guild = guild;
             return this;

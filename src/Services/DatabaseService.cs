@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Discord;
-using Discord.WebSocket;
+using Disqord;
 using LiteDB;
 using Volte.Core;
 using Volte.Core.Models;
@@ -13,17 +12,17 @@ namespace Volte.Services
     {
         public static readonly LiteDatabase Database = new LiteDatabase("data/Volte.db");
 
-        private readonly DiscordShardedClient _client;
+        private readonly DiscordClient _client;
         private readonly LoggingService _logger;
 
-        public DatabaseService(DiscordShardedClient discordShardedClient,
+        public DatabaseService(DiscordClient discordClient,
             LoggingService loggingService)
         {
-            _client = discordShardedClient;
+            _client = discordClient;
             _logger = loggingService;
         }
 
-        public GuildData GetData(SocketGuild guild) => GetData(guild.Id);
+        public GuildData GetData(CachedGuild guild) => GetData(guild.Id);
 
         public GuildData GetData(ulong id)
         {
@@ -44,7 +43,7 @@ namespace Volte.Services
             collection.Update(newConfig);
         }
 
-        private static GuildData Create(SocketGuild guild)
+        private static GuildData Create(CachedGuild guild)
             => new GuildData
             {
                 Id = guild.Id,

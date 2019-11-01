@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
 using Gommon;
 using Humanizer;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
@@ -77,7 +76,7 @@ namespace Volte.Services
                     .Where(x => !x.IsDynamic && !x.Location.IsNullOrWhitespace()));
 
             var embed = ctx.CreateEmbedBuilder();
-            var msg = await embed.WithTitle("Evaluating").WithDescription(Format.Code(code, "cs")).SendToAsync(ctx.Channel);
+            var msg = await embed.WithTitle("Evaluating").WithDescription($"```cs\n{code}```").SendToAsync(ctx.Channel);
             try
             {
                 var sw = Stopwatch.StartNew();
@@ -100,7 +99,7 @@ namespace Volte.Services
                         m.Embed = embed.WithTitle("Eval")
                             .AddField("Elapsed Time", $"{sw.Elapsed.Humanize()}", true)
                             .AddField("Return Type", result.GetType(), true)
-                            .WithDescription(Format.Code(res, "ini")).Build());
+                            .WithDescription($"```ini\n{res}```").Build());
                 }
             }
             catch (Exception e)

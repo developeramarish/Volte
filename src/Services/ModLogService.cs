@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
-using Discord;
 using Gommon;
 using Volte.Commands;
 using Volte.Core;

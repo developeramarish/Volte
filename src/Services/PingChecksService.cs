@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Disqord.Events;
 using Gommon;
 using Volte.Core.Models;
 using Volte.Core.Models.EventArgs;
@@ -9,16 +10,23 @@ namespace Volte.Services
     public sealed class PingChecksService : VolteEventService
     {
         private readonly LoggingService _logger;
+        private readonly DatabaseService _db;
 
-        public PingChecksService(LoggingService loggingService) 
-            => _logger = loggingService;
+        public PingChecksService(LoggingService loggingService,
+            DatabaseService databaseService)
+        {
+            _logger = loggingService;
+            _db = databaseService;
+        } 
+            
 
         public override Task DoAsync(EventArgs args)
             => CheckMessageAsync(args.Cast<MessageReceivedEventArgs>());
 
         private async Task CheckMessageAsync(MessageReceivedEventArgs args)
         {
-            if (args.Data.Configuration.Moderation.MassPingChecks &&
+            var data = _db.GetData(args.Message.Guild);
+            if (data.Configuration.Moderation.MassPingChecks &&
                 !args.Context.User.IsAdmin(args.Context.ServiceProvider))
             {
                 _logger.Debug(LogSource.Service,
