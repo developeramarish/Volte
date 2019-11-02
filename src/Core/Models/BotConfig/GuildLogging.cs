@@ -21,7 +21,7 @@ namespace Volte.Core.Models.BotConfig
         public ulong ChannelId { get; set; }
 
 
-        public bool EnsureValidConfiguration(DiscordBot bot, out CachedTextChannel channel)
+        public bool EnsureValidConfiguration(VolteBot bot, out CachedTextChannel channel)
         {
             if (!Enabled)
             {

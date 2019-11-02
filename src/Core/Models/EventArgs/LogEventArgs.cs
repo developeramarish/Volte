@@ -1,18 +1,20 @@
+using Disqord.Logging;
+
 namespace Volte.Core.Models.EventArgs
 {
-    /*public sealed class LogEventArgs : System.EventArgs
+    public sealed class LogEventArgs : System.EventArgs
     {
         public string Message { get; }
         public string Source { get; }
-        public LogSeverity Severity { get; }
-        public (LogMessage Internal,  Discord) LogMessage { get; }
+        public LogMessageSeverity Severity { get; }
+        public (LogMessage Internal,  MessageLoggedEventArgs External) LogMessage { get; }
 
-        public LogEventArgs(global::Discord.LogMessage message)
+        public LogEventArgs(MessageLoggedEventArgs args)
         {
-            Message = message.Message;
-            Source = message.Source;
-            Severity = message.Severity;
-            LogMessage = (Models.LogMessage.FromDiscordLogMessage(message), message);
+            Message = args.Message;
+            Source = args.Source;
+            Severity = args.Severity;
+            LogMessage = (Models.LogMessage.FromDiscordLogMessage(args), args);
         }
-    }*/
+    }
 }

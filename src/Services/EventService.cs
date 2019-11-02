@@ -4,8 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Discord;
-using Discord.Net;
 using Disqord;
 using Disqord.Events;
 using Gommon;

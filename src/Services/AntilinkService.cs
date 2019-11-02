@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
+using Disqord;
 using Disqord.Events;
 using Gommon;
 using Volte.Core.Models;
@@ -40,8 +41,7 @@ namespace Volte.Services
                 return;
             }
 
-            await args.Message.DeleteAsync(new RequestOptions
-                {AuditLogReason = "Deleted as it contained an invite link."});
+            await args.Message.DeleteAsync(RestRequestOptions.FromReason("Deleted as it contained an invite link."));
             var m = await args.Context.CreateEmbed("Don't send invites here.").SendToAsync(args.Context.Channel);
             _logger.Debug(LogSource.Volte,
                 $"Deleted a message in #{args.Context.Channel.Name} ({args.Context.Guild.Name}) for containing a Discord invite URL.");

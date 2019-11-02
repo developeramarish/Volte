@@ -3,22 +3,19 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading;
-using Discord;
-using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Qmmands;
 using RestSharp;
-using Volte;
+using Volte.Core;
 using Volte.Services;
-using Volte.Core.Attributes;
 using Version = Volte.Version;
 
 namespace Gommon
 {
     public static partial class Extensions
     {
-        public static IServiceCollection AddAllServices(this IServiceCollection coll, int shardCount) =>
+        public static IServiceCollection AddAllServices(this IServiceCollection coll, VolteBot bot) =>
             //add all other services; formerly in the VolteBot class
             coll.AddVolteServices()
                 .AddSingleton<HandlerService>()
@@ -34,16 +31,7 @@ namespace Gommon
                     Separator = "irrelevant",
                     NullableNouns = null
                 }))
-                .AddSingleton(new DiscordShardedClient(new DiscordSocketConfig
-                {
-                    LogLevel = Version.ReleaseType is ReleaseType.Development
-                        ? LogSeverity.Debug
-                        : LogSeverity.Verbose,
-                    AlwaysDownloadUsers = true,
-                    ConnectionTimeout = 10000,
-                    MessageCacheSize = 50,
-                    TotalShards = shardCount
-                }));
+                .AddSingleton(bot);
 
         public static IServiceCollection AddVolteServices(this IServiceCollection coll)
         {

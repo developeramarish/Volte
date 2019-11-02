@@ -48,7 +48,7 @@ namespace Volte.Services
                         await ctx.CreateEmbedBuilder()
                             .WithAuthor(m.Author)
                             .WithDescription($"```{m.Content}```")
-                            .AddField("Quoted By", $"**{ctx.Member.DisplayName}#{ctx.Member.Discriminator}** in <#{ctx.Channel.Id}>")
+                            .AddField("Quoted By", $"**{ctx.Member.DisplayName}#{ctx.Member.Discriminator}** in <#{ctx.Channel.Id}>.")
                             .SendToAsync(ctx.Channel);
 
                         if (match.Groups["Prelink"].Value.IsNullOrEmpty() &&

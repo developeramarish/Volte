@@ -1,13 +1,13 @@
+using System;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using Discord;
-using Discord.Net;
-using Discord.WebSocket;
+using Disqord;
+using Disqord.Events;
+using Disqord.Rest;
 using Volte.Core;
 using Volte.Core.Models;
-using Volte.Core.Models.EventArgs;
 using Gommon;
 
 namespace Volte.Services
@@ -15,19 +15,19 @@ namespace Volte.Services
     public sealed class GuildService : VolteService
     {
         private readonly LoggingService _logger;
-        private readonly DiscordShardedClient _client;
+        private readonly VolteBot _bot;
 
         public GuildService(LoggingService loggingService,
-            DiscordShardedClient discordShardedClient)
+            VolteBot bot)
         {
             _logger = loggingService;
-            _client = discordShardedClient;
+            _bot = bot;
         }
 
         public async Task OnJoinAsync(JoinedGuildEventArgs args)
         {
             _logger.Debug(LogSource.Volte, "Joined a guild.");
-            if (Config.BlacklistedOwners.Contains(args.Guild.Owner.Id))
+            if (Config.BlacklistedOwners.Contains(args.Guild.OwnerId.RawValue))
             {
                 _logger.Warn(LogSource.Volte,
                     $"Left guild \"{args.Guild.Name}\" owned by blacklisted owner {args.Guild.Owner}.");
@@ -35,7 +35,7 @@ namespace Volte.Services
                 return;
             }
 
-            var embed = new EmbedBuilder()
+            var embed = new LocalEmbedBuilder()
                 .WithTitle("Hey there!")
                 .WithAuthor(args.Guild.Owner)
                 .WithColor(Config.SuccessColor)
@@ -56,37 +56,37 @@ namespace Volte.Services
                 _logger.Error(LogSource.Volte,
                     "Sent the guild owner the introduction message.");
             }
-            catch (HttpException ex) when (ex.HttpCode is HttpStatusCode.Forbidden)
+            catch (DiscordHttpException ex) when (ex.HttpStatusCode is HttpStatusCode.Forbidden)
             {
-                var c = args.Guild.TextChannels.OrderByDescending(x => x.Position).FirstOrDefault();
+                var c = args.Guild.TextChannels.OrderByDescending(x => x.Value.Position).FirstOrDefault().Value;
                 _logger.Error(LogSource.Volte,
                     "Could not DM the guild owner; sending to the upper-most channel instead.");
                 if (c != null) await embed.SendToAsync(c);
             }
 
-            if (!Config.GuildLogging.EnsureValidConfiguration(_client, out var channel))
+            if (!Config.GuildLogging.EnsureValidConfiguration(_bot, out var channel))
             {
                 _logger.Error(LogSource.Volte, "Invalid guild_logging.guild_id/guild_logging.channel_id configuration. Check your IDs and try again.");
                 return;
             }
 
-            var all = args.Guild.Users;
-            var users = all.Where(u => !u.IsBot).ToList();
-            var bots = all.Where(u => u.IsBot).ToList();
+            var all = args.Guild.Members;
+            var users = all.Where(u => !u.Value.IsBot).ToList();
+            var bots = all.Where(u => u.Value.IsBot).ToList();
 
-            var e = new EmbedBuilder()
+            var e = new LocalEmbedBuilder()
                 .WithAuthor(args.Guild.Owner)
                 .WithTitle("Joined Guild")
                 .AddField("Name", args.Guild.Name, true)
                 .AddField("ID", args.Guild.Id, true)
-                .WithThumbnailUrl(args.Guild.IconUrl)
-                .WithCurrentTimestamp()
-                .AddField("Users", users.Count(), true)
-                .AddField("Bots", bots.Count(), true);
+                .WithThumbnailUrl(args.Guild.GetIconUrl())
+                .WithTimestamp(DateTimeOffset.UtcNow)
+                .AddField("Users", users.Count, true)
+                .AddField("Bots", bots.Count, true);
 
-            if (bots.Count() > users.Count())
+            if (bots.Count > users.Count)
                 await channel.SendMessageAsync(
-                    $"{_client.GetOwner().Mention}: Joined a guild with more bots than users.", false,
+                    $"{_bot.GetOwner().Mention}: Joined a guild with more bots than users.", false,
                     e.WithSuccessColor().Build());
             else
                 await e.WithSuccessColor().SendToAsync(channel);
@@ -95,18 +95,18 @@ namespace Volte.Services
         public async Task OnLeaveAsync(LeftGuildEventArgs args)
         {
             _logger.Debug(LogSource.Volte, "Left a guild.");
-            if (!Config.GuildLogging.EnsureValidConfiguration(_client, out var channel))
+            if (!Config.GuildLogging.EnsureValidConfiguration(_bot, out var channel))
             {
                 _logger.Error(LogSource.Volte, "Invalid guild_logging.guild_id/guild_logging.channel_id configuration. Check your IDs and try again.");
                 return;
             }
 
-            await new EmbedBuilder()
+            await new LocalEmbedBuilder()
                 .WithAuthor(args.Guild.Owner)
                 .WithTitle("Left Guild")
                 .AddField("Name", args.Guild.Name, true)
                 .AddField("ID", args.Guild.Id, true)
-                .WithThumbnailUrl(args.Guild.IconUrl)
+                .WithThumbnailUrl(args.Guild.GetIconUrl())
                 .WithErrorColor()
                 .SendToAsync(channel);
         }

@@ -76,7 +76,7 @@ namespace Gommon
         public static CachedGuild GetPrimaryGuild(this DiscordClientBase client)
             => client.GetGuild(405806471578648588);
 
-        public static Task RegisterVolteEventHandlersAsync(this DiscordClient client, IServiceProvider provider)
+        public static Task RegisterVolteEventHandlersAsync(this VolteBot client, IServiceProvider provider)
         {
             provider.Get<WelcomeService>(out var welcome);
             provider.Get<GuildService>(out var guild);
@@ -113,6 +113,11 @@ namespace Gommon
 
                     await evt.HandleMessageAsync(args);
                 };
+                client.Logger.MessageLogged += (_, args) =>
+                {
+
+                };
+
                 return Task.CompletedTask;
             });
         }

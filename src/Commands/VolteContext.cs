@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Disqord;
 using Disqord.Bot;
+using Disqord.Events;
 using Qmmands;
 using Gommon;
 using Volte.Core.Models.Guild;
@@ -16,6 +17,11 @@ namespace Volte.Commands
         public static VolteContext Create(DiscordBot bot, string prefix, CachedUserMessage msg) 
             => new VolteContext(bot, prefix, msg);
 
+        public static VolteContext FromMessageReceivedEventArgs(MessageReceivedEventArgs args)
+        {
+            args.Client.
+        }
+
         // ReSharper disable once SuggestBaseTypeForParameter
         public VolteContext(DiscordBot bot, string prefix, CachedUserMessage msg) : base(bot, prefix, msg)
         {
@@ -24,8 +30,9 @@ namespace Volte.Commands
             Bot = bot;
             Guild = msg.Channel.Cast<CachedTextChannel>()?.Guild;
             Channel = msg.Channel.Cast<CachedTextChannel>();
-            User = msg.Author.Cast<CachedMember>();
+            Member = msg.Author.Cast<CachedMember>();
             Message = msg;
+            User = msg.Author.Cast<CachedMember>();
             GuildData = db.GetData(Guild);
             Now = DateTimeOffset.UtcNow;
         }

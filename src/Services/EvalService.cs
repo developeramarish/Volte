@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis.Scripting;
 using Qmmands;
 using Qommon.Collections;
 using Volte.Commands;
+using Volte.Core;
 using Volte.Core.Models;
 
 namespace Volte.Services
@@ -21,16 +22,19 @@ namespace Volte.Services
         private readonly LoggingService _logger;
         private readonly CommandService _commands;
         private readonly EmojiService _emoji;
+        private readonly VolteBot _bot;
 
         public EvalService(DatabaseService databaseService,
             LoggingService loggingService,
             CommandService commandService,
-            EmojiService emojiService)
+            EmojiService emojiService,
+            VolteBot bot)
         {
             _db = databaseService;
             _logger = loggingService;
             _commands = commandService;
             _emoji = emojiService;
+            _bot = bot;
         }
 
         public async Task EvaluateAsync(VolteContext ctx, string code)
@@ -61,7 +65,7 @@ namespace Volte.Services
             => new EvalEnvironment
             {
                 Context = ctx,
-                Client = ctx.Client.GetShardFor(ctx.Guild),
+                Bot = _bot,
                 Data = _db.GetData(ctx.Guild),
                 Logger = _logger,
                 CommandService = _commands,

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord;
+using Disqord.Events;
 using Gommon;
 using Volte.Core.Models;
-using Volte.Core.Models.EventArgs;
 
 namespace Volte.Services
 {
@@ -20,22 +19,22 @@ namespace Volte.Services
         }
 
         public override Task DoAsync(EventArgs args)
-            => ApplyRoleAsync(args.Cast<UserJoinedEventArgs>());
+            => ApplyRoleAsync(args.Cast<MemberJoinedEventArgs>());
 
-        private async Task ApplyRoleAsync(UserJoinedEventArgs args)
+        private async Task ApplyRoleAsync(MemberJoinedEventArgs args)
         {
-            var data = _db.GetData(args.Guild);
-            var targetRole = args.Guild.GetRole(data.Configuration.Autorole);
+            var data = _db.GetData(args.Member.Guild);
+            var targetRole = args.Member.Guild.GetRole(data.Configuration.Autorole);
             if (targetRole is null)
             {
                 _logger.Debug(LogSource.Volte,
-                    $"Guild {args.Guild.Name}'s Autorole is set to an ID of a role that no longer exists; or is not set at all.");
+                    $"Guild {args.Member.Guild.Name}'s Autorole is set to an ID of a role that no longer exists; or is not set at all.");
                 return;
             }
 
-            await args.User.AddRoleAsync(targetRole);
+            await args.Member.GrantRoleAsync(targetRole.Id);
             _logger.Debug(LogSource.Volte,
-                $"Applied role {targetRole.Name} to user {args.User} in guild {args.Guild.Name}.");
+                $"Applied role {targetRole.Name} to user {args.Member} in guild {args.Member.Guild.Name}.");
         }
     }
 }

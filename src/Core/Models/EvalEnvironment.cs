@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Discord.WebSocket;
+using Disqord;
 using Gommon;
 using Microsoft.Extensions.DependencyInjection;
 using Qmmands;
@@ -20,32 +20,32 @@ namespace Volte.Core.Models
         internal EvalEnvironment() { }
 
         public VolteContext Context { get; set; }
-        public DiscordSocketClient Client { get; set; }
+        public VolteBot Bot { get; set; }
         public GuildData Data { get; set; }
         public LoggingService Logger { get; set; }
         public CommandService CommandService { get; set; }
         public DatabaseService DatabaseService { get; set; }
         public EmojiService EmojiService { get; set; }
 
-        public SocketGuildUser User(ulong id) 
-            => Context.Guild.GetUser(id);
+        public CachedMember Member(ulong id) 
+            => Context.Guild.GetMember(id);
 
-        public SocketGuildUser User(string username) 
-            => Context.Guild.Users.FirstOrDefault(a => a.Username.EqualsIgnoreCase(username) || (a.Nickname != null && a.Nickname.EqualsIgnoreCase(username)));
+        public CachedMember Member(string username)
+            => Context.Guild.Members.FirstOrDefault(a => a.Value.Name.EqualsIgnoreCase(username) || (a.Value.Nick != null && a.Value.Nick.EqualsIgnoreCase(username))).Value;
 
-        public SocketTextChannel TextChannel(ulong id)
-            => Context.Client.GetChannel(id).Cast<SocketTextChannel>();
+        public CachedTextChannel TextChannel(ulong id)
+            => Context.Bot.GetChannel(id).Cast<CachedTextChannel>();
 
-        public SocketUserMessage Message(ulong id)
-            => Context.Channel.GetCachedMessage(id).Cast<SocketUserMessage>() ?? throw new InvalidOperationException($"The ID provided didn't lead to a valid user-created message, it lead to a(n) {Context.Channel.GetCachedMessage(id)?.Source} message.");
+        public CachedUserMessage Message(ulong id)
+            => Context.Channel.GetMessage(id) ?? throw new InvalidOperationException("The ID provided didn't lead to a valid user-created message.");
 
-        public SocketGuild Guild(ulong id)
-            => Context.Client.GetGuild(id);
+        public CachedGuild Guild(ulong id)
+            => Context.Bot.GetGuild(id);
 
         public T GetFromProvider<T>()
             => Context.ServiceProvider.GetRequiredService<T>();
 
-        public SocketUserMessage Message(string id)
+        public CachedUserMessage Message(string id)
         {
             if (ulong.TryParse(id, out var ulongId))
             {

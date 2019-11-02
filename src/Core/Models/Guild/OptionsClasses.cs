@@ -57,14 +57,14 @@ namespace Volte.Core.Models.Guild
                 .ReplaceIgnoreCase("{MemberCount}", user.Guild.MemberCount)
                 .ReplaceIgnoreCase("{UserString}", user);
 
-        public string FormatLeavingMessage(CachedMember user) 
-            => LeavingMessage.ReplaceIgnoreCase("{ServerName}", user.Guild.Name)
-                .ReplaceIgnoreCase("{GuildName}", user.Guild.Name)
+        public string FormatLeavingMessage(CachedUser user, CachedGuild guild) 
+            => LeavingMessage.ReplaceIgnoreCase("{ServerName}", guild.Name)
+                .ReplaceIgnoreCase("{GuildName}", guild.Name)
                 .ReplaceIgnoreCase("{UserName}", user.Name)
                 .ReplaceIgnoreCase("{UserMention}", user.Mention)
-                .ReplaceIgnoreCase("{OwnerMention}", user.Guild.Owner.Mention)
+                .ReplaceIgnoreCase("{OwnerMention}", guild.Owner.Mention)
                 .ReplaceIgnoreCase("{UserTag}", user.Discriminator)
-                .ReplaceIgnoreCase("{MemberCount}", user.Guild.MemberCount)
+                .ReplaceIgnoreCase("{MemberCount}", guild.MemberCount)
                 .ReplaceIgnoreCase("{UserString}", user);
 
         public string FormatDmMessage(CachedMember user)

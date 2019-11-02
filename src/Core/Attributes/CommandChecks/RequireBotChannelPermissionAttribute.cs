@@ -1,7 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using Discord;
+using Disqord;
 using Gommon;
 using Qmmands;
 using Volte.Commands;
@@ -10,23 +9,23 @@ namespace Volte.Core.Attributes
 {
     public sealed class RequireBotChannelPermissionAttribute : CheckAttribute
     {
-        private readonly ChannelPermission[] _permissions;
+        private readonly ChannelPermissions[] _permissions;
 
-        public RequireBotChannelPermissionAttribute(params ChannelPermission[] permissions) => _permissions = permissions;
+        public RequireBotChannelPermissionAttribute(params ChannelPermissions[] permissions) => _permissions = permissions;
 
         public override async ValueTask<CheckResult> CheckAsync(
-            CommandContext context, IServiceProvider provider)
+            CommandContext context)
         {
             var ctx = context.Cast<VolteContext>();
-            foreach (var perm in ctx.Guild.CurrentUser.GetPermissions(ctx.Channel).ToList())
+            foreach (var perm in ctx.Guild.CurrentMember.GetPermissionsFor(ctx.Channel.Cast<CachedGuildChannel>()).ToList())
             {
-                if (ctx.Guild.CurrentUser.GuildPermissions.Administrator)
+                if (ctx.Guild.CurrentMember.Permissions.Administrator)
                     return CheckResult.Successful;
                 if (_permissions.Contains(perm))
                     return CheckResult.Successful;
             }
 
-            await new EmbedBuilder()
+            await new LocalEmbedBuilder()
                 .AddField("Error in Command", ctx.Command.Name)
                 .AddField("Error Reason", $"I am missing the following channel-level permissions required to execute this command: `{ _permissions.Select(x => x.ToString()).Join(", ")}`")
                 .AddField("Correct Usage", ctx.Command.GetUsage(ctx))
