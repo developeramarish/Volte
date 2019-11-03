@@ -12,6 +12,6 @@ namespace Volte.Commands.Modules
         [Remarks("setname {name}")]
         [RequireBotOwner]
         public Task<ActionResult> SetNameAsync([Remainder] string name) 
-            => Ok($"Set my username to **{name}**.", _ => Context.Client.CurrentUser.ModifyAsync(u => u.Username = name));
+            => Ok($"Set my username to **{name}**.", _ => Context.Bot.CurrentUser.ModifyAsync(u => u.Name = name));
     }
 }

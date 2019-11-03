@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Discord.WebSocket;
+using Disqord;
 using Qmmands;
 using Volte.Core.Attributes;
 using Volte.Commands.Results;
@@ -12,7 +12,7 @@ namespace Volte.Commands.Modules
         [Description("Sets the role to be used for Autorole.")]
         [Remarks("autorole {roleName}")]
         [RequireGuildAdmin]
-        public Task<ActionResult> AutoroleAsync([Remainder] SocketRole role)
+        public Task<ActionResult> AutoroleAsync([Remainder] CachedRole role)
         {
             Context.GuildData.Configuration.Autorole = role.Id;
             Db.UpdateData(Context.GuildData);

@@ -9,18 +9,19 @@ namespace Volte.Core.Attributes
 {
     public sealed class RequireBotChannelPermissionAttribute : CheckAttribute
     {
-        private readonly ChannelPermissions[] _permissions;
+        private readonly Permission[] _permissions;
 
-        public RequireBotChannelPermissionAttribute(params ChannelPermissions[] permissions) => _permissions = permissions;
+        public RequireBotChannelPermissionAttribute(params Permission[] permissions) => _permissions = permissions;
 
         public override async ValueTask<CheckResult> CheckAsync(
             CommandContext context)
         {
             var ctx = context.Cast<VolteContext>();
+            if (ctx.Guild.CurrentMember.Permissions.Administrator)
+                return CheckResult.Successful;
+
             foreach (var perm in ctx.Guild.CurrentMember.GetPermissionsFor(ctx.Channel.Cast<CachedGuildChannel>()).ToList())
             {
-                if (ctx.Guild.CurrentMember.Permissions.Administrator)
-                    return CheckResult.Successful;
                 if (_permissions.Contains(perm))
                     return CheckResult.Successful;
             }

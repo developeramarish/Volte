@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Discord;
+using Disqord;
 
 namespace Volte.Commands.Results
 {

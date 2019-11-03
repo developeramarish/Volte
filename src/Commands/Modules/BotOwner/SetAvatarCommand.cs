@@ -1,7 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Discord;
+using Disqord;
 using Gommon;
 using Qmmands;
 using Volte.Core.Attributes;
@@ -33,7 +33,7 @@ namespace Volte.Commands.Modules
             }
 
             await using var img = (await sr.Content.ReadAsByteArrayAsync()).ToStream();
-            await Context.Client.CurrentUser.ModifyAsync(u => u.Avatar = new Image(img));
+            await Context.Bot.CurrentUser.ModifyAsync(u => u.Avatar = new Optional<LocalAttachment>(new LocalAttachment(img, string.Empty)));
             return Ok("Done!");
         }
     }

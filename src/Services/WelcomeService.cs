@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord;
 using Disqord;
 using Disqord.Events;
 using Gommon;
@@ -20,26 +19,32 @@ namespace Volte.Services
             _logger = loggingService;
         }
 
-        internal async Task JoinAsync(MemberJoinedEventArgs args)
+        internal Task JoinAsync(MemberJoinedEventArgs args) 
+            => JoinAsync(args.Member);
+
+        internal Task LeaveAsync(MemberLeftEventArgs args) 
+            => LeaveAsync(args.User, args.Guild);
+
+        internal async Task JoinAsync(CachedMember member)
         {
-            var data = _db.GetData(args.Member.Guild);
+            var data = _db.GetData(member.Guild);
 
             if (!data.Configuration.Welcome.WelcomeDmMessage.IsNullOrEmpty())
-                _ = await args.Member.TrySendMessageAsync(data.Configuration.Welcome.FormatDmMessage(args.Member));
+                _ = await member.TrySendMessageAsync(data.Configuration.Welcome.FormatDmMessage(member));
             if (data.Configuration.Welcome.WelcomeMessage.IsNullOrEmpty())
                 return; //we don't want to send an empty join message
 
             _logger.Debug(LogSource.Volte,
                 "User joined a guild, let's check to see if we should send a welcome embed.");
-            var welcomeMessage = data.Configuration.Welcome.FormatWelcomeMessage(args.Member);
-            var c = args.Member.Guild.GetTextChannel(data.Configuration.Welcome.WelcomeChannel);
+            var welcomeMessage = data.Configuration.Welcome.FormatWelcomeMessage(member);
+            var c = member.Guild.GetTextChannel(data.Configuration.Welcome.WelcomeChannel);
 
             if (!(c is null))
             {
                 await new LocalEmbedBuilder()
                     .WithColor(data.Configuration.Welcome.WelcomeColor)
                     .WithDescription(welcomeMessage)
-                    .WithThumbnailUrl(args.Member.GetAvatarUrl())
+                    .WithThumbnailUrl(member.GetAvatarUrl())
                     .WithTimestamp(DateTimeOffset.UtcNow)
                     .SendToAsync(c);
 
@@ -51,20 +56,20 @@ namespace Volte.Services
                 "WelcomeChannel config value resulted in an invalid/nonexistent channel; aborting.");
         }
 
-        internal async Task LeaveAsync(MemberLeftEventArgs args)
+        internal async Task LeaveAsync(CachedUser user, CachedGuild guild)
         {
-            var data = _db.GetData(args.Guild);
+            var data = _db.GetData(guild);
             if (data.Configuration.Welcome.LeavingMessage.IsNullOrEmpty()) return;
             _logger.Debug(LogSource.Volte,
                 "User left a guild, let's check to see if we should send a leaving embed.");
-            var leavingMessage = data.Configuration.Welcome.FormatLeavingMessage(args.User, args.Guild);
-            var c = args.Guild.GetTextChannel(data.Configuration.Welcome.WelcomeChannel);
+            var leavingMessage = data.Configuration.Welcome.FormatLeavingMessage(user, guild);
+            var c = guild.GetTextChannel(data.Configuration.Welcome.WelcomeChannel);
             if (!(c is null))
             {
                 await new LocalEmbedBuilder()
                     .WithColor(data.Configuration.Welcome.WelcomeColor)
                     .WithDescription(leavingMessage)
-                    .WithThumbnailUrl(args.User.GetAvatarUrl())
+                    .WithThumbnailUrl(user.GetAvatarUrl())
                     .WithTimestamp(DateTimeOffset.UtcNow)
                     .SendToAsync(c);
                 _logger.Debug(LogSource.Volte, $"Sent a leaving embed to #{c.Name}.");

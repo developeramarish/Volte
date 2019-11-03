@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Discord;
+using Disqord;
 using Qmmands;
 using Volte.Core.Attributes;
 using Volte.Commands.Results;
@@ -8,10 +8,10 @@ namespace Volte.Commands.Modules
 {
     public sealed partial class AdminUtilityModule : VolteModule
     {
-        [Command("ServerName", "Sn", "GuildName", "Gn")]
+        [Command("GuildName", "Gn", "ServerName", "Sn")]
         [Description("Sets the name of the current guild.")]
         [Remarks("servername {name}")]
-        [RequireBotGuildPermission(GuildPermission.ManageGuild)]
+        [RequireBotGuildPermission(Permission.ManageGuild)]
         [RequireGuildAdmin]
         public async Task<ActionResult> ServerNameAsync([Remainder] string name)
         {

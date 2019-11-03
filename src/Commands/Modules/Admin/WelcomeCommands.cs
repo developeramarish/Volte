@@ -1,10 +1,9 @@
 ﻿using System.Text;
 using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
+using Disqord;
+using Disqord.Events;
 using Qmmands;
 using Volte.Core.Attributes;
-using Volte.Core.Models.EventArgs;
 using Volte.Commands.Results;
 using Volte.Services;
 
@@ -18,7 +17,7 @@ namespace Volte.Commands.Modules
         [Description("Sets the channel used for welcoming new users for this guild.")]
         [Remarks("welcomechannel {#channel}")]
         [RequireGuildAdmin]
-        public Task<ActionResult> WelcomeChannelAsync([Remainder] SocketTextChannel channel)
+        public Task<ActionResult> WelcomeChannelAsync([Remainder] CachedTextChannel channel)
         {
             Context.GuildData.Configuration.Welcome.WelcomeChannel = channel.Id;
             Db.UpdateData(Context.GuildData);
@@ -54,7 +53,7 @@ namespace Volte.Commands.Modules
                 .AppendLine($"Set this guild's welcome message to ```{message}```")
                 .AppendLine()
                 .AppendLine($"{sendingTest}").ToString(),
-                _ => WelcomeService.JoinAsync(new UserJoinedEventArgs(Context.User)));
+                async _ => await WelcomeService.JoinAsync(Context.Member));
         }
 
         [Command("WelcomeColor", "WelcomeColour", "Wcl")]
@@ -97,7 +96,7 @@ namespace Volte.Commands.Modules
                     .AppendLine($"Set this server's leaving message to ```{message}```")
                     .AppendLine()
                     .AppendLine($"{sendingTest}").ToString(),
-                _ => WelcomeService.LeaveAsync(new UserLeftEventArgs(Context.User)));
+                async _ => await WelcomeService.LeaveAsync(Context.User, Context.Guild));
         }
 
         [Command("WelcomeDmMessage", "Wdmm")]
@@ -109,12 +108,12 @@ namespace Volte.Commands.Modules
             if (message is null)
             {
                 return Ok(
-                    $"Unset the WelcomeDmMessage that was previously set to: {Format.Code(Context.GuildData.Configuration.Welcome.WelcomeDmMessage)}");
+                    $"Unset the WelcomeDmMessage that was previously set to: ```{Context.GuildData.Configuration.Welcome.WelcomeDmMessage}```");
             }
 
             Context.GuildData.Configuration.Welcome.WelcomeDmMessage = message;
             Db.UpdateData(Context.GuildData);
-            return Ok($"Set the WelcomeDmMessage to: {Format.Code(message)}");
+            return Ok($"Set the WelcomeDmMessage to: ```{message}```");
         }
     }
 }

@@ -1,7 +1,5 @@
-using Discord.WebSocket;
 using System.Text.Json.Serialization;
 using Disqord;
-using Disqord.Bot;
 
 namespace Volte.Core.Models.BotConfig
 {

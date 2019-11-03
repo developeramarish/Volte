@@ -101,7 +101,7 @@ namespace Gommon
                         await welcome.LeaveAsync(args);
                 };
                 
-                client.Ready += args => evt.OnShardReady(args);
+                client.Ready += args => evt.OnReady(args);
                 client.MessageReceived += async args =>
                 {
                     if (!(args.Message is CachedUserMessage msg) || msg.Author.IsBot) return;

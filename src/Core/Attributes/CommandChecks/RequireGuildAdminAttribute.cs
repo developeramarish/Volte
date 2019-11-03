@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Gommon;
 using Qmmands;
@@ -8,10 +7,10 @@ namespace Volte.Core.Attributes
 {
     public sealed class RequireGuildAdminAttribute : CheckAttribute
     {
-        public override async ValueTask<CheckResult> CheckAsync(CommandContext context, IServiceProvider provider)
+        public override async ValueTask<CheckResult> CheckAsync(CommandContext context)
         {
             var ctx = context.Cast<VolteContext>();
-            if (ctx.User.IsAdmin(provider)) return CheckResult.Successful;
+            if (ctx.Member.IsAdmin(ctx.Bot)) return CheckResult.Successful;
 
             await ctx.ReactFailureAsync();
             return CheckResult.Unsuccessful(string.Empty);

@@ -33,7 +33,7 @@ namespace Volte.Commands.Modules
         [Remarks("tagstats {name}")]
         public async Task<ActionResult> TagStatsAsync([Remainder] Tag tag)
         {
-            var u = await Context.Client.GetShardFor(Context.Guild).Rest.GetUserAsync(tag.CreatorId);
+            var u = await Context.Bot.GetUserAsync(tag.CreatorId);
 
             return Ok(Context.CreateEmbedBuilder()
                 .WithTitle($"Tag {tag.Name}")

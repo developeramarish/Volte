@@ -1,4 +1,5 @@
-﻿using SysVer = System.Version;
+﻿using Disqord;
+using SysVer = System.Version;
 
 namespace Volte
 {
@@ -11,7 +12,7 @@ namespace Volte
         private static int Hotfix => 0;
         public static ReleaseType ReleaseType => ReleaseType.Release;
         public static string FullVersion => $"{Major}.{Minor}.{Patch}.{Hotfix}-{ReleaseType}";
-        public static string DiscordNetVersion => Discord.DiscordConfig.Version;
+        public static string DisqordVersion => "V1-pre";
     }
 
     public enum ReleaseType

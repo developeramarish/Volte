@@ -19,7 +19,7 @@ namespace Volte.Core.Models.Guild
             => SanitizeContent()
                 .Replace("{ServerName}", ctx.Guild.Name)
                 .Replace("{GuildName}", ctx.Guild.Name)
-                .Replace("{UserName}", ctx.User.Username)
+                .Replace("{UserName}", ctx.User.Name)
                 .Replace("{UserMention}", ctx.User.Mention)
                 .Replace("{OwnerMention}", ctx.Guild.Owner.Mention)
                 .Replace("{UserTag}", ctx.User.Discriminator);

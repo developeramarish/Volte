@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Discord;
+using Disqord;
 using Gommon;
 using Volte.Core.Models.Misc;
 using Volte.Services;

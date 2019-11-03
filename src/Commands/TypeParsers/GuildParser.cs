@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord.WebSocket;
+using Disqord;
 using Gommon;
 using Qmmands;
 using Volte.Core.Attributes;
@@ -9,36 +9,35 @@ using Volte.Core.Attributes;
 namespace Volte.Commands.TypeParsers
 {
     [VolteTypeParser]
-    public sealed class GuildParser : TypeParser<SocketGuild>
+    public sealed class GuildParser : TypeParser<CachedGuild>
     {
-        public override ValueTask<TypeParserResult<SocketGuild>> ParseAsync(
+        public override ValueTask<TypeParserResult<CachedGuild>> ParseAsync(
             Parameter parameter,
             string value,
-            CommandContext context,
-            IServiceProvider provider)
+            CommandContext context)
         {
             var ctx = context.Cast<VolteContext>();
-            SocketGuild guild = default;
+            CachedGuild guild = default;
 
-            var guilds = ctx.Client.Guilds;
+            var guilds = ctx.Bot.Guilds;
 
             if (ulong.TryParse(value, out var id))
-                guild = guilds.FirstOrDefault(x => x.Id == id);
+                guild = guilds.Values.FirstOrDefault(x => x.Id == id);
 
             if (guild is null)
             {
-                var match = guilds.Where(x =>
+                var match = guilds.Values.Where(x =>
                     x.Name.EqualsIgnoreCase(value)).ToList();
                 if (match.Count > 1)
-                    return TypeParserResult<SocketGuild>.Unsuccessful(
+                    return TypeParserResult<CachedGuild>.Unsuccessful(
                         "Multiple guilds found with that name, try using its ID.");
 
                 guild = match.FirstOrDefault();
             }
 
             return guild is null
-                ? TypeParserResult<SocketGuild>.Unsuccessful("Guild not found.")
-                : TypeParserResult<SocketGuild>.Successful(guild);
+                ? TypeParserResult<CachedGuild>.Unsuccessful("Guild not found.")
+                : TypeParserResult<CachedGuild>.Successful(guild);
         }
     }
 }

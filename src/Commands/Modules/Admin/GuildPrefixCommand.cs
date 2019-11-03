@@ -7,7 +7,7 @@ namespace Volte.Commands.Modules
 {
     public sealed partial class AdminModule : VolteModule
     {
-        [Command("ServerPrefix", "Sp", "GuildPrefix", "Gp")]
+        [Command("GuildPrefix", "Gp", "ServerPrefix", "Sp")]
         [Description("Sets the command prefix for this guild.")]
         [Remarks("serverprefix {newPrefix}")]
         [RequireGuildAdmin]

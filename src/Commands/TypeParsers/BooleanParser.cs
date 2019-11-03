@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Gommon;
 using Qmmands;
@@ -27,8 +26,7 @@ namespace Volte.Commands.TypeParsers
         public override ValueTask<TypeParserResult<bool>> ParseAsync(
             Parameter param,
             string value,
-            CommandContext context,
-            IServiceProvider provider)
+            CommandContext context)
         {
             if (TrueValues.ContainsIgnoreCase(value))
                 return TypeParserResult<bool>.Successful(true);

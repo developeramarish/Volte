@@ -1,8 +1,7 @@
 ﻿using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
+using Disqord;
 using Gommon;
 using Qmmands;
 using Volte.Commands.Results;
@@ -16,23 +15,22 @@ namespace Volte.Commands.Modules
         [Remarks("tree")]
         public Task<ActionResult> TreeAsync()
         {
-            var uncategorized = new StringBuilder().AppendLine(Format.Bold("Uncategorized"));
+            var uncategorized = new StringBuilder().AppendLine("**Uncategorized**");
             var categories = new StringBuilder();
 
-            foreach (var c in Context.Guild.TextChannels
+            foreach (var c in Context.Guild.TextChannels.Values
                 .Where(c => c.CategoryId == null)
-                .Cast<SocketGuildChannel>()
-                .Concat(Context.Guild.VoiceChannels
-                    .Where(a => a.CategoryId == null)).OrderBy(c => c.Position))
+                .Concat(Context.Guild.VoiceChannels.Values.Where(a => a.CategoryId == null).Cast<CachedGuildChannel>())
+                .OrderBy(c => c.Position))
             {
                 uncategorized.AppendLine($"- {(c is IVoiceChannel ? "" : "#")}{c.Name}");
             }
 
             uncategorized.AppendLine();
-            foreach (var category in Context.Guild.CategoryChannels.OrderBy(x => x.Position))
+            foreach (var category in Context.Guild.CategoryChannels.Values.OrderBy(x => x.Position))
             {
-                var categoryBuilder = new StringBuilder().AppendLine($"{Format.Bold(category.Name)}");
-                foreach (var child in category.Channels.OrderBy(c => c.Position))
+                var categoryBuilder = new StringBuilder().AppendLine($"**{category.Name}**");
+                foreach (var child in category.Channels.Values.OrderBy(c => c.Position))
                 {
                     categoryBuilder.AppendLine($"- {(child is IVoiceChannel ? $"{child.Name}" : $"{child.Cast<ITextChannel>()?.Mention}")}");
                 }

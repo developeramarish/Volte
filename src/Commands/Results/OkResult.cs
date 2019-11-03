@@ -1,13 +1,13 @@
 using System;
 using System.Threading.Tasks;
-using Discord;
+using Disqord;
 using Gommon;
 
 namespace Volte.Commands.Results
 {
     public class OkResult : ActionResult
     {
-        public OkResult(string text, bool shouldEmbed = true, EmbedBuilder embed = null,
+        public OkResult(string text, bool shouldEmbed = true, LocalEmbedBuilder embed = null,
             Func<IUserMessage, Task> func = null, bool awaitCallback = true)
         {
             _message = text;
@@ -29,11 +29,11 @@ namespace Volte.Commands.Results
         private readonly bool _shouldEmbed;
         private readonly Func<IUserMessage, Task> _callback;
         private readonly Func<Task> _separateLogic;
-        private readonly EmbedBuilder _embed;
+        private readonly LocalEmbedBuilder _embed;
 
         public override async ValueTask<ResultCompletionData> ExecuteResultAsync(VolteContext ctx)
         {
-            if (!ctx.Guild.CurrentUser.GetPermissions(ctx.Channel).SendMessages) return new ResultCompletionData();
+            if (!ctx.Guild.CurrentMember.GetPermissionsFor(ctx.Channel.Cast<CachedTextChannel>()).SendMessages) return new ResultCompletionData();
 
             if (_separateLogic != null)
             {

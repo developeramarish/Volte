@@ -10,6 +10,7 @@ using Gommon;
 using Humanizer;
 using Qmmands;
 using Qommon.Collections;
+using Volte.Commands;
 using Volte.Core;
 using Volte.Core.Models;
 using Volte.Core.Models.EventArgs;
@@ -49,44 +50,45 @@ namespace Volte.Services
             _quoteService = quoteService;
         }
 
-        public async Task HandleMessageAsync(MessageReceivedEventArgs args)
+        public async Task HandleMessageAsync(MessageReceivedEventArgs evnt)
         {
+            var context = VolteContext.FromMessageReceivedEventArgs(evnt);
             if (Config.EnabledFeatures.Blacklist)
-                await _blacklist.DoAsync(args);
+                await _blacklist.DoAsync(evnt);
             if (Config.EnabledFeatures.Antilink)
-                await _antilink.DoAsync(args);
+                await _antilink.DoAsync(evnt);
             if (Config.EnabledFeatures.PingChecks)
-                await _pingchecks.DoAsync(args);
+                await _pingchecks.DoAsync(evnt);
 
-            var data = _db.GetData(args.Message.Guild);
+            var data = _db.GetData(evnt.Message.Guild);
 
             var prefixes = new List<string>
             {
-                data.Configuration.CommandPrefix, $"<@{args.Client.CurrentUser.Id}> ",
-                $"<@!{args.Client.CurrentUser.Id}> "
+                data.Configuration.CommandPrefix, $"<@{evnt.Client.CurrentUser.Id}> ",
+                $"<@!{evnt.Client.CurrentUser.Id}> "
             };
 
-            if (CommandUtilities.HasAnyPrefix(args.Message.Content, prefixes, StringComparison.OrdinalIgnoreCase, out _,
+            if (CommandUtilities.HasAnyPrefix(evnt.Message.Content, prefixes, StringComparison.OrdinalIgnoreCase, out _,
                 out var cmd))
             {
                 var sw = Stopwatch.StartNew();
-                var result = await _commandService.ExecuteAsync(cmd, args.Context, args.Context.ServiceProvider);
+                var result = await _commandService.ExecuteAsync(cmd, context);
 
                 if (result is CommandNotFoundResult) return;
 
                 sw.Stop();
-                await _commandsService.OnCommandAsync(new CommandCalledEventArgs(result, args.Context, sw));
+                await _commandsService.OnCommandAsync(new CommandCalledEventArgs(result, context, sw));
 
-                if (args.Data.Configuration.DeleteMessageOnCommand)
-                    if (!await args.Message.TryDeleteAsync())
-                        _logger.Warn(LogSource.Service, $"Could not act upon the DeleteMessageOnCommand setting for {args.Context.Guild.Name} as the bot is missing the required permission, or another error occured.");
+                if (context.GuildData.Configuration.DeleteMessageOnCommand)
+                    if (!await evnt.Message.TryDeleteAsync())
+                        _logger.Warn(LogSource.Service, $"Could not act upon the DeleteMessageOnCommand setting for {context.Guild.Name} as the bot is missing the required permission, or another error occured.");
                 return;
             }
-            
-            await _quoteService.DoAsync(args);
+
+            await _quoteService.DoAsync(evnt);
         }
 
-        public async Task OnShardReady(ReadyEventArgs args)
+        public async Task OnReady(ReadyEventArgs args)
         {
             var guilds = args.Client.Guilds.Count;
             var users = args.Client.Guilds.SelectMany(x => x.Value.Members).DistinctBy(x => x.Value.Id).Count();
@@ -101,23 +103,24 @@ namespace Volte.Services
             _logger.Info(LogSource.Volte, $"    {"user".ToQuantity(users)}");
             _logger.Info(LogSource.Volte, $"    {"channel".ToQuantity(channels)}");
 
+            var c = args.Client.Cast<VolteBot>();
             if (!_shouldStream)
             {
-                await args.Shard.SetGameAsync(Config.Game);
-                _logger.Info(LogSource.Volte, $"Set {args.Shard.CurrentUser.Username}'s game to \"{Config.Game}\".");
+                await c.SetPresenceAsync(new LocalActivity(Config.Game, ActivityType.Playing));
+                _logger.Info(LogSource.Volte, $"Set {args.Client.CurrentUser.Name}'s game to \"{Config.Game}\".");
             }
             else
             {
-                await args.Shard.SetGameAsync(Config.Game, Config.FormattedStreamUrl, ActivityType.Streaming);
+                await c.SetPresenceAsync(new LocalActivity(Config.Game, ActivityType.Streaming, Config.FormattedStreamUrl));
                 _logger.Info(LogSource.Volte,
-                    $"Set {args.Shard.CurrentUser.Username}'s activity to \"{ActivityType.Streaming}: {Config.Game}\", at Twitch user {Config.Streamer}.");
+                    $"Set {c.CurrentUser.Name}'s activity to \"{ActivityType.Streaming}: {Config.Game}\", at Twitch user {Config.Streamer}.");
             }
 
             _ = Task.Run(async () =>
             {
-                foreach (var guild in args.Shard.Guilds)
+                foreach (var guild in c.Guilds.Values)
                 {
-                    if (Config.BlacklistedOwners.Contains(guild.OwnerId))
+                    if (Config.BlacklistedOwners.Contains(guild.OwnerId.RawValue))
                     {
                         _logger.Warn(LogSource.Volte,
                             $"Left guild \"{guild.Name}\" owned by blacklisted owner {guild.Owner}.");
@@ -128,9 +131,9 @@ namespace Volte.Services
                 }
             });
 
-            if (Config.GuildLogging.EnsureValidConfiguration(args.Client, out var channel))
+            if (Config.GuildLogging.EnsureValidConfiguration(c, out var channel))
             {
-                await new EmbedBuilder()
+                await new LocalEmbedBuilder()
                     .WithSuccessColor()
                     .WithAuthor(args.Client.GetOwner())
                     .WithDescription(

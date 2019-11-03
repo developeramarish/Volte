@@ -8,10 +8,10 @@ namespace Volte.Core.Attributes
 {
     public sealed class RequireGuildModeratorAttribute : CheckAttribute
     {
-        public override async ValueTask<CheckResult> CheckAsync(CommandContext context, IServiceProvider provider)
+        public override async ValueTask<CheckResult> CheckAsync(CommandContext context)
         {
             var ctx = context.Cast<VolteContext>();
-            if (ctx.User.IsModerator(provider)) return CheckResult.Successful;
+            if (ctx.Member.IsModerator(ctx.Bot)) return CheckResult.Successful;
 
             await ctx.ReactFailureAsync();
             return CheckResult.Unsuccessful(string.Empty);

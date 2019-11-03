@@ -3,11 +3,11 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Discord;
 using Gommon;
 using Qmmands;
 using Volte.Core.Attributes;
 using Volte.Commands.Results;
+using Volte.Helpers;
 
 namespace Volte.Commands.Modules
 {
@@ -18,10 +18,10 @@ namespace Volte.Commands.Modules
         [Remarks("devinfo")]
         [RequireBotOwner]
         public Task<ActionResult> DevInfoAsync() 
-            => Ok(Format.Code(new StringBuilder()
+            => Ok(FormatHelper.Code(new StringBuilder()
                     .AppendLine("== Core ==")
-                    .AppendLine($"{Context.Client.Guilds.Count} Guilds")
-                    .AppendLine($"{Context.Client.Guilds.Sum(x => x.Channels.Count)} Text/Voice Channels")
+                    .AppendLine($"{Context.Bot.Guilds.Count} Guilds")
+                    .AppendLine($"{Context.Bot.Guilds.Values.Sum(x => x.Channels.Count)} Text/Voice Channels")
                     .AppendLine("== Commands ==")
                     .AppendLine($"{CommandService.GetAllModules().Count} Modules")
                     .AppendLine($"{CommandService.GetAllCommands().Count} Commands")

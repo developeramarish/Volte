@@ -1,13 +1,14 @@
 using System;
 using System.Threading.Tasks;
-using Discord;
+using Disqord;
+using Disqord.Bot;
 using Qmmands;
 using Volte.Commands.Results;
 using Volte.Services;
 
 namespace Volte.Commands
 {
-    public abstract class VolteModule : ModuleBase<VolteContext>
+    public abstract class VolteModule : DiscordModuleBase<VolteContext>
     {
         public DatabaseService Db { get; set; }
         public EventService EventService { get; set; }
@@ -30,14 +31,14 @@ namespace Volte.Commands
 
 
         protected ActionResult Ok(
-            EmbedBuilder embed, 
+            LocalEmbedBuilder embed, 
             Func<IUserMessage, Task> afterCompletion = null) 
             => new OkResult(null, true, embed, afterCompletion);
 
         protected ActionResult Ok(string text) 
             => new OkResult(text);
 
-        protected ActionResult Ok(EmbedBuilder embed) 
+        protected ActionResult Ok(LocalEmbedBuilder embed) 
             => new OkResult(null, true, embed);
 
         protected ActionResult BadRequest(string reason) 

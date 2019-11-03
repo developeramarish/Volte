@@ -77,7 +77,7 @@ namespace Volte.Core.Models.EventArgs
             WithContext(ctx)
                 .WithTime(ctx.Now)
                 .WithGuild(ctx.Guild)
-                .WithModerator(ctx.User);
+                .WithModerator(ctx.Member);
 
 
             return this;
