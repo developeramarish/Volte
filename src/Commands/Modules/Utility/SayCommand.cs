@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
-using Discord;
+using Disqord;
+using Gommon;
 using Qmmands;
 using Volte.Core;
 using Volte.Commands.Results;
@@ -18,7 +19,7 @@ namespace Volte.Commands.Modules
         [Description("Runs the say command normally, but doesn't show the author in the message.")]
         [Remarks("silentsay {msg}")]
         public Task<ActionResult> SilentSayAsync([Remainder] string msg) 
-            => Ok(new EmbedBuilder()
+            => Ok(new LocalEmbedBuilder()
                 .WithColor(Config.SuccessColor)
                 .WithDescription(msg), _ => Context.Message.DeleteAsync());
     }

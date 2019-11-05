@@ -21,7 +21,7 @@ namespace Volte.Commands.Modules
             var tag = Context.GuildData.Extras.Tags.FirstOrDefault(t => t.Name.EqualsIgnoreCase(name));
             if (tag != null)
             {
-                var user = Context.Client.GetShardFor(Context.Guild).Rest.GetUserAsync(tag.CreatorId);
+                var user = Context.Bot.GetUserAsync(tag.CreatorId);
                 return BadRequest(
                     $"Cannot make the tag **{tag.Name}**, as it already exists and is owned by **{user}**.");
             }
@@ -55,7 +55,7 @@ namespace Volte.Commands.Modules
             Context.GuildData.Extras.Tags.Remove(tag);
             Db.UpdateData(Context.GuildData);
             return Ok($"Deleted the tag **{tag.Name}**, created by " +
-                      $"**{await Context.Client.Shards.First().Rest.GetUserAsync(tag.CreatorId)}**, with " +
+                      $"**{await Context.Bot.GetUserAsync(tag.CreatorId)}**, with " +
                       $"**{"use".ToQuantity(tag.Uses)}**.");
         }
     }

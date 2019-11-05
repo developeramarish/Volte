@@ -76,33 +76,33 @@ namespace Gommon
         public static CachedGuild GetPrimaryGuild(this DiscordClientBase client)
             => client.GetGuild(405806471578648588);
 
-        public static Task RegisterVolteEventHandlersAsync(this VolteBot client, IServiceProvider provider)
+        public static Task RegisterVolteEventHandlersAsync(this VolteBot bot)
         {
-            provider.Get<WelcomeService>(out var welcome);
-            provider.Get<GuildService>(out var guild);
-            provider.Get<EventService>(out var evt);
-            provider.Get<AutoroleService>(out var autorole);
-            provider.Get<LoggingService>(out var logger);
+            bot.Get<WelcomeService>(out var welcome);
+            bot.Get<GuildService>(out var guild);
+            bot.Get<EventService>(out var evt);
+            bot.Get<AutoroleService>(out var autorole);
+            bot.Get<LoggingService>(out var logger);
             return Executor.ExecuteAsync(() =>
             {
-                client.JoinedGuild += args => guild.OnJoinAsync(args);
-                client.LeftGuild += args => guild.OnLeaveAsync(args);
+                bot.JoinedGuild += args => guild.OnJoinAsync(args);
+                bot.LeftGuild += args => guild.OnLeaveAsync(args);
                 
-                client.MemberJoined += async args =>
+                bot.MemberJoined += async args =>
                 {
                     if (Config.EnabledFeatures.Welcome)
                         await welcome.JoinAsync(args);
                     if (Config.EnabledFeatures.Autorole)
                         await autorole.DoAsync(args);
                 };
-                client.MemberLeft += async args =>
+                bot.MemberLeft += async args =>
                 {
                     if (Config.EnabledFeatures.Welcome)
                         await welcome.LeaveAsync(args);
                 };
                 
-                client.Ready += args => evt.OnReady(args);
-                client.MessageReceived += async args =>
+                bot.Ready += args => evt.OnReady(args);
+                bot.MessageReceived += async args =>
                 {
                     if (!(args.Message is CachedUserMessage msg) || msg.Author.IsBot) return;
                     if (msg.Channel is IDmChannel dmc)
@@ -113,10 +113,7 @@ namespace Gommon
 
                     await evt.HandleMessageAsync(args);
                 };
-                client.Logger.MessageLogged += (_, args) =>
-                {
-
-                };
+                bot.Logger.MessageLogged += async (_, args) => await logger.DoAsync(new LogEventArgs(args));
 
                 return Task.CompletedTask;
             });
@@ -153,6 +150,26 @@ namespace Gommon
             {
                 return false;
             }
+        }
+
+        public static string GetUnicodeUrl(this IEmoji emoji)
+        {
+            try
+            {
+                return
+                    $"https://i.kuro.mu/emoji/512x512/{emoji.Cast<Emoji>()?.ToString().GetUnicodePoints().Select(x => x.ToString("x2")).Join('-')}.png";
+            }
+            catch (ArgumentNullException)
+            {
+                return string.Empty;
+            }
+        }
+
+        public static async ValueTask<string> GetJumpUrlAsync(this IMessage message)
+        {
+            var c = await message.Client.GetChannelAsync(message.ChannelId);
+            var channel = message.ChannelId;
+            return $"https://discordapp.com/channels/{(c.Cast<ITextChannel>()?.GuildId is null ? "@me" : $"{(c as ITextChannel)?.GuildId}")}/{channel}/{message.Id}";
         }
     }
 }

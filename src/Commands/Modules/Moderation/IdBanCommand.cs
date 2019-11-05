@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Discord;
+using Disqord;
 using Qmmands;
 using Volte.Core.Attributes;
 using Volte.Core.Models;
@@ -13,12 +13,12 @@ namespace Volte.Commands.Modules
         [Command("IdBan")]
         [Description("Bans a user based on their ID.")]
         [Remarks("idban {id} [reason]")]
-        [RequireBotGuildPermission(GuildPermission.BanMembers)]
+        [RequireBotGuildPermission(Permission.BanMembers)]
         [RequireGuildModerator]
         public async Task<ActionResult> IdBanAsync(ulong user,
             [Remainder] string reason = "Banned by a Moderator.")
         {
-            await Context.Guild.AddBanAsync(user, 0, reason);
+            await Context.Guild.BanMemberAsync(user, reason);
             return Ok("Successfully banned that user from this guild.", async _ => 
                 await ModLogService.DoAsync(ModActionEventArgs.New
                     .WithDefaultsFromContext(Context)

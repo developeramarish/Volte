@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Volte.Helpers
+﻿namespace Volte.Helpers
 {
     /// <summary>
     ///     Helper class for markdown formatting.
@@ -13,5 +9,8 @@ namespace Volte.Helpers
             => language is null
                 ? $"`{text}`"
                 : $"```{language}\n{text}```";
+
+        public static string Bold(string text) 
+            => $"**{text}**";
     }
 }

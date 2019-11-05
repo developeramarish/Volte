@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord.WebSocket;
+using Disqord;
 using Gommon;
 using Humanizer;
 using Qmmands;
@@ -20,37 +20,35 @@ namespace Volte.Commands.Modules
         public async Task<ActionResult> InfoAsync()
             => Ok(Context.CreateEmbedBuilder()
                 .AddField("Version", Version.FullVersion, true)
-                .AddField("Author", $"{await Context.Client.Shards.First().Rest.GetUserAsync(168548441939509248)}, contributors on [GitHub](https://github.com/Ultz/Volte), and members of the Ultz organization.", true)
+                .AddField("Author", $"{await Context.Bot.GetUserAsync(168548441939509248)}, contributors on [GitHub](https://github.com/Ultz/Volte), and members of the Ultz organization.", true)
                 .AddField("Language/Library", $"C# 8, Disqord {Version.DisqordVersion}", true)
-                .AddField("Guilds", Context.Client.Guilds.Count, true)
-                .AddField("Shards", Context.Client.Shards.Count, true)
-                .AddField("Channels", Context.Client.Guilds.SelectMany(x => x.Channels).Where(x => !(x is SocketCategoryChannel)).DistinctBy(x => x.Id).Count(),
-                    true)
+                .AddField("Guilds", Context.Bot.Guilds.Count, true)
+                .AddField("Channels", Context.Bot.Guilds.SelectMany(x => x.Value.Channels).DistinctBy(x => x.Value.Id).Count(), true)
                 .AddField("Invite Me", $"`{CommandService.GetCommand("Invite").GetUsage(Context)}`", true)
                 .AddField("Uptime", Process.GetCurrentProcess().GetUptime(), true)
                 .AddField("Successful Commands", CommandsService.SuccessfulCommandCalls, true)
                 .AddField("Failed Commands", CommandsService.FailedCommandCalls, true)
-                .WithThumbnailUrl(Context.Client.CurrentUser.GetAvatarUrl()));
+                .WithThumbnailUrl(Context.Bot.CurrentUser.GetAvatarUrl()));
 
         [Command("UserInfo", "Ui")]
         [Description("Shows info for the mentioned user or yourself if none is provided.")]
         [Remarks("userinfo [user]")]
-        public Task<ActionResult> UserInfoAsync(SocketGuildUser user = null)
+        public Task<ActionResult> UserInfoAsync(CachedMember user = null)
         {
-            user ??= Context.User;
+            user ??= Context.Member;
 
             return Ok(Context.CreateEmbedBuilder()
                 .WithThumbnailUrl(user.GetAvatarUrl())
                 .WithTitle("User Info")
                 .AddField("User ID", user.Id, true)
-                .AddField("Game", user.Activity?.Name ?? "Nothing", true)
-                .AddField("Status", user.Status, true)
+                .AddField("Game", user.Presence.Activity?.Name ?? "Nothing", true)
+                .AddField("Status", user.Presence.Status, true)
                 .AddField("Is Bot", user.IsBot, true)
                 .AddField("Account Created",
-                    $"{user.CreatedAt.FormatDate()}, {user.CreatedAt.FormatFullTime()}")
+                    $"{user.Id.CreatedAt.FormatDate()}, {user.Id.CreatedAt.FormatFullTime()}")
                 .AddField("Joined This Guild",
-                    $"{(user.JoinedAt.HasValue ? user.JoinedAt.Value.FormatDate() : "\u200B")}, " +
-                    $"{(user.JoinedAt.HasValue ? user.JoinedAt.Value.FormatFullTime() : "\u200B")}"));
+                    $"{user.JoinedAt.FormatDate()}, " +
+                    $"{user.JoinedAt.FormatFullTime()}"));
         }
 
         [Command("ServerInfo", "Si", "GuildInfo", "Gi")]
@@ -58,15 +56,15 @@ namespace Volte.Commands.Modules
         [Remarks("serverinfo")]
         public Task<ActionResult> ServerInfoAsync()
         {
-            var cAt = Context.Guild.CreatedAt;
+            var cAt = Context.Guild.Id.CreatedAt;
 
             return Ok(Context.CreateEmbedBuilder()
                 .WithTitle("Guild Info")
-                .WithThumbnailUrl(Context.Guild.IconUrl)
+                .WithThumbnailUrl(Context.Guild.GetIconUrl())
                 .AddField("Name", Context.Guild.Name)
                 .AddField("Created", $"{cAt.Month}.{cAt.Day}.{cAt.Year} ({cAt.Humanize()})")
                 .AddField("Region", Context.Guild.VoiceRegionId)
-                .AddField("Members", Context.Guild.Users.Count, true)
+                .AddField("Members", Context.Guild.Members.Count, true)
                 .AddField("Roles", Context.Guild.Roles.Count, true)
                 .AddField("Category Channels", Context.Guild.CategoryChannels.Count, true)
                 .AddField("Voice Channels", Context.Guild.VoiceChannels.Count, true)

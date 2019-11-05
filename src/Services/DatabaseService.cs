@@ -12,13 +12,13 @@ namespace Volte.Services
     {
         public static readonly LiteDatabase Database = new LiteDatabase("data/Volte.db");
 
-        private readonly DiscordClient _client;
+        private readonly VolteBot _bot;
         private readonly LoggingService _logger;
 
-        public DatabaseService(DiscordClient discordClient,
+        public DatabaseService(VolteBot bot,
             LoggingService loggingService)
         {
-            _client = discordClient;
+            _bot = bot;
             _logger = loggingService;
         }
 
@@ -30,7 +30,7 @@ namespace Volte.Services
             var coll = Database.GetCollection<GuildData>("guilds");
             var conf = coll.FindOne(g => g.Id == id);
             if (!(conf is null)) return conf;
-            var newConf = Create(_client.GetGuild(id));
+            var newConf = Create(_bot.GetGuild(id));
             coll.Insert(newConf);
             return newConf;
         }

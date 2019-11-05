@@ -14,7 +14,7 @@ namespace Volte.Core.Models.EventArgs
             Message = args.Message;
             Source = args.Source;
             Severity = args.Severity;
-            LogMessage = (Models.LogMessage.FromDiscordLogMessage(args), args);
+            LogMessage = (Models.LogMessage.FromDisqordLogMessage(args), args);
         }
     }
 }

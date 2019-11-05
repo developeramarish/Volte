@@ -1,7 +1,5 @@
-﻿using System.Net;
-using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
+﻿using System.Threading.Tasks;
+using Disqord;
 using Qmmands;
 using Volte.Core.Attributes;
 using Volte.Core.Models;
@@ -14,27 +12,27 @@ namespace Volte.Commands.Modules
     public sealed partial class ModerationModule : VolteModule
     {
         [Command("Kick")]
-        [Description("Kicks the given user.")]
-        [Remarks("kick {@user} [reason]")]
-        [RequireBotGuildPermission(GuildPermission.KickMembers)]
+        [Description("Kicks the given member.")]
+        [Remarks("kick {@member} [reason]")]
+        [RequireBotGuildPermission(Permission.KickMembers)]
         [RequireGuildModerator]
-        public async Task<ActionResult> KickAsync([CheckHierarchy] SocketGuildUser user,
+        public async Task<ActionResult> KickAsync([CheckHierarchy] CachedMember member,
             [Remainder] string reason = "Kicked by a Moderator.")
         {
-            if (!await user.TrySendMessageAsync(
+            if (!await member.TrySendMessageAsync(
                 embed: Context.CreateEmbed($"You've been kicked from **{Context.Guild.Name}** for **{reason}**.")))
             {
                 Logger.Warn(LogSource.Volte,
-                    $"encountered a 403 when trying to message {user}!");
+                    $"encountered a 403 when trying to message {member}!");
             }
 
-            await user.KickAsync(reason);
+            await member.KickAsync(RestRequestOptions.FromReason(reason));
 
-            return Ok($"Successfully kicked **{user.Username}#{user.Discriminator}** from this guild.", _ =>
+            return Ok($"Successfully kicked **{member.Name}#{member.Discriminator}** from this guild.", _ =>
                 ModLogService.DoAsync(ModActionEventArgs.New
                     .WithDefaultsFromContext(Context)
                     .WithActionType(ModActionType.Kick)
-                    .WithTarget(user)
+                    .WithTarget(member)
                     .WithReason(reason))
                 );
         }

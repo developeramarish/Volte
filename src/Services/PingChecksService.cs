@@ -38,7 +38,7 @@ namespace Volte.Services
                 var content = args.Message.Content;
                 if (content.ContainsIgnoreCase("@everyone") ||
                     content.ContainsIgnoreCase("@here") ||
-                    args.Message.UserMentions.Count > 10)
+                    args.Message.MentionedUsers.Count > 10)
                 {
                     _ = await args.Message.TryDeleteAsync();
                     _logger.Debug(LogSource.Service,

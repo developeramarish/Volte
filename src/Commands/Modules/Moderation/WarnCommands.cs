@@ -1,11 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using Discord;
-using Discord.Net;
-using Discord.WebSocket;
+using Disqord;
+using Disqord.Rest;
 using Gommon;
 using Qmmands;
 using Volte.Core.Attributes;
@@ -19,77 +17,73 @@ namespace Volte.Commands.Modules
     public sealed partial class ModerationModule : VolteModule
     {
         [Command("Warn", "W")]
-        [Description("Warns the target user for the given reason.")]
-        [Remarks("warn {user} {reason}")]
+        [Description("Warns the target member for the given reason.")]
+        [Remarks("warn {member} {reason}")]
         [RequireGuildModerator]
-        public async Task<ActionResult> WarnAsync([CheckHierarchy] SocketGuildUser user, [Remainder] string reason)
+        public async Task<ActionResult> WarnAsync([CheckHierarchy] CachedMember member, [Remainder] string reason)
         {
             Context.GuildData.Extras.Warns.Add(new Warn
             {
-                User = user.Id,
+                User = member.Id,
                 Reason = reason,
                 Issuer = Context.User.Id,
                 Date = Context.Now
             });
             Db.UpdateData(Context.GuildData);
 
-            if (!await user.TrySendMessageAsync(
+            if (!await member.TrySendMessageAsync(
                 embed: Context.CreateEmbed($"You've been warned in **{Context.Guild.Name}** for **{reason}**.")))
             {
                 Logger.Warn(LogSource.Volte,
-                    $"encountered a 403 when trying to message {user}!");
+                    $"encountered a 403 when trying to message {member}!");
             }
 
-            return Ok($"Successfully warned **{user}** for **{reason}**.",
+            return Ok($"Successfully warned **{member}** for **{reason}**.",
                 _ => ModLogService.DoAsync(ModActionEventArgs.New
                     .WithDefaultsFromContext(Context)
                     .WithActionType(ModActionType.Warn)
-                    .WithTarget(user)
+                    .WithTarget(member)
                     .WithReason(reason))
             );
         }
 
         [Command("Warns", "Ws")]
-        [Description("Shows all the warns for the given user.")]
-        [Remarks("warns {user}")]
+        [Description("Shows all the warns for the given member.")]
+        [Remarks("warns {member}")]
         [RequireGuildModerator]
-        public Task<ActionResult> WarnsAsync(SocketGuildUser user)
+        public Task<ActionResult> WarnsAsync(CachedMember member)
         {
-            var warns = Db.GetData(Context.Guild).Extras.Warns.Where(x => x.User == user.Id).Take(10);
+            var warns = Db.GetData(Context.Guild).Extras.Warns.Where(x => x.User == member.Id).Take(10);
             return Ok(new StringBuilder()
                 .AppendLine(
-                    "Showing the last 10 warnings, or less if the user doesn't have 10 yet, or none if the user's record is clean.")
+                    "Showing the last 10 warnings, or less if the member doesn't have 10 yet, or none if the member's record is clean.")
                 .AppendLine()
                 .AppendLine($"{warns.Select(x => $"**{x.Reason}**, on **{x.Date.FormatDate()}**").Join("\n")}")
                 .ToString());
         }
 
         [Command("ClearWarns", "Cw")]
-        [Description("Clears the warnings for the given user.")]
-        [Remarks("clearwarns {user}")]
+        [Description("Clears the warnings for the given member.")]
+        [Remarks("clearwarns {member}")]
         [RequireGuildModerator]
-        public async Task<ActionResult> ClearWarnsAsync(SocketGuildUser user)
+        public async Task<ActionResult> ClearWarnsAsync(CachedMember member)
         {
-            var newWarnList = Context.GuildData.Extras.Warns.Where(x => x.User != user.Id).ToList();
+            var newWarnList = Context.GuildData.Extras.Warns.Where(x => x.User != member.Id).ToList();
             Context.GuildData.Extras.Warns = newWarnList;
             Db.UpdateData(Context.GuildData);
 
-            try
-            {
-                await Context.CreateEmbed($"Your warns in **{Context.Guild.Name}** have been cleared. Hooray!")
-                    .SendToAsync(user);
-            }
-            catch (HttpException e) when (e.HttpCode == HttpStatusCode.Forbidden)
+            if (!await member.TrySendMessageAsync(
+                embed: Context.CreateEmbed($"Your warns in **{Context.Guild.Name}** have been cleared. Hooray!")))
             {
                 Logger.Warn(LogSource.Volte,
-                    $"encountered a 403 when trying to message {user}!", e);
+                    $"encountered a 403 when trying to message {member}!");
             }
 
-            return Ok($"Cleared **{newWarnList.Count}** warnings for **{user}**.", _ =>
+            return Ok($"Cleared **{newWarnList.Count}** warnings for **{member}**.", _ =>
                 ModLogService.DoAsync(ModActionEventArgs.New
                     .WithDefaultsFromContext(Context)
                     .WithActionType(ModActionType.ClearWarns)
-                    .WithTarget(user))
+                    .WithTarget(member))
             );
         }
     }

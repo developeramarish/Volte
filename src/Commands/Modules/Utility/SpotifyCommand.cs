@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
+using Disqord;
 using Humanizer;
 using Qmmands;
 using Volte.Commands.Results;
@@ -14,10 +13,10 @@ namespace Volte.Commands.Modules
         [Command("Spotify")]
         [Description("Shows what you're listening to on Spotify, if you're listening to something.")]
         [Remarks("spotify [user]")]
-        public Task<ActionResult> SpotifyAsync(SocketGuildUser target = null)
+        public Task<ActionResult> SpotifyAsync(CachedMember target = null)
         {
-            target ??= Context.User;
-            if (target.Activity is SpotifyGame spotify)
+            target ??= Context.Member;
+            if (target.Presence.Activity is SpotifyActivity spotify)
             {
 
                 return Ok(Context.CreateEmbedBuilder()
@@ -26,10 +25,10 @@ namespace Volte.Commands.Modules
                         .AppendLine($"**Track:** [{spotify.TrackTitle}]({spotify.TrackUrl})")
                         .AppendLine($"**Album:** {spotify.AlbumTitle}")
                         .AppendLine(
-                            $"**Duration:** {(spotify.Duration.HasValue ? spotify.Duration.Value.Humanize(2) : "No duration provided.")}")
+                            $"**Duration:** {spotify.Duration.Humanize(2)}")
                         .AppendLine($"**Artist(s):** {spotify.Artists.Join(", ")}")
                         .ToString())
-                    .WithThumbnailUrl(spotify.AlbumArtUrl));
+                    .WithThumbnailUrl(spotify.AlbumCoverUrl));
             }
 
             return BadRequest("Target user isn't listening to Spotify!");

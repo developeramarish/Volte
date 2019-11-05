@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord;
+using Disqord;
 using Gommon;
 using Qmmands;
 using Volte.Core.Attributes;
@@ -15,7 +15,7 @@ namespace Volte.Commands.Modules
         [Command("Delete")]
         [Description("Deletes a message in the current channel by its ID. Creates an audit log entry for abuse prevention.")]
         [Remarks("delete {messageId}")]
-        [RequireBotChannelPermission(ChannelPermission.ManageMessages)]
+        [RequireBotChannelPermission(Permission.ManageMessages)]
         [RequireGuildModerator]
         public async Task<ActionResult> DeleteAsync(ulong messageId)
         {
@@ -23,10 +23,7 @@ namespace Volte.Commands.Modules
             if (target is null)
                 return BadRequest("That message doesn't exist in this channel.");
 
-            await target.DeleteAsync(new RequestOptions
-            {
-                AuditLogReason = $"Message deleted by Moderator {Context.User}."
-            });
+            await target.DeleteAsync(RestRequestOptions.FromReason($"Message deleted by Moderator {Context.User}."));
 
             return Ok($"{EmojiService.BallotBoxWithCheck} Deleted that message.", async m =>
             {

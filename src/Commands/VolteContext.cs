@@ -62,5 +62,9 @@ namespace Volte.Commands
         public Task ReplyAsync(LocalEmbedBuilder embed) => embed.SendToAsync(Channel);
 
         public Task ReactAsync(string unicode) => Message.AddReactionAsync(new LocalEmoji(unicode));
+
+        public static implicit operator ValueTask<DiscordCommandContext>(VolteContext ctx) 
+            => new ValueTask<DiscordCommandContext>(ctx);
+
     }
 }

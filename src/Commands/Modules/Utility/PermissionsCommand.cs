@@ -1,8 +1,7 @@
 ﻿
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
+using Disqord;
 using Gommon;
 using Humanizer;
 using Qmmands;
@@ -15,16 +14,16 @@ namespace Volte.Commands.Modules
         [Command("Permissions", "Perms")]
         [Description("Shows someone's, or the command invoker's, permissions in the current guild.")]
         [Remarks("permissions [user]")]
-        public Task<ActionResult> PermissionsAsync(SocketGuildUser user = null)
+        public Task<ActionResult> PermissionsAsync(CachedMember user = null)
         {
-            user ??= Context.User; // get the user (or the invoker, if none specified)
+            user ??= Context.Member; // get the user (or the invoker, if none specified)
 
 
             if (user.Id == Context.Guild.OwnerId)
             {
                 return Ok("User is owner of this guild, and has all permissions.");
             }
-            if (user.GuildPermissions.Administrator)
+            if (user.Permissions.Administrator)
             {
                 return Ok("User has Administrator permission, and has all permissions.");
             }
@@ -40,11 +39,11 @@ namespace Volte.Commands.Modules
         }
 
         private (IOrderedEnumerable<(string Name, bool Value)> Allowed, IOrderedEnumerable<(string Name, bool Value)> Disallowed) GetPermissions(
-            SocketGuildUser user)
+            CachedMember user)
         {
-            var propDict = user.GuildPermissions.GetType().GetProperties()
+            var propDict = user.Permissions.GetType().GetProperties()
                 .Where(a => a.PropertyType.Inherits<bool>())
-                .Select(a => (a.Name.Humanize(), a.GetValue(user.GuildPermissions).Cast<bool>()))
+                .Select(a => (a.Name.Humanize(), a.GetValue(user.Permissions).Cast<bool>()))
                 .OrderByDescending(ab => ab.Item2 ? 1 : 0)
                 .ToList(); //holy reflection
 

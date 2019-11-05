@@ -113,13 +113,15 @@ namespace Volte.Core
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
         }
 
-        protected override async ValueTask<bool> BeforeExecutedAsync(CachedUserMessage message)
-        {
-            var r = await base.BeforeExecutedAsync(message);
-            return r && message.Guild != null;
-        }
+        protected override ValueTask<bool> BeforeExecutedAsync(CachedUserMessage message) 
+            => new ValueTask<bool>(message.Guild != null);
 
         protected override ValueTask<DiscordCommandContext> GetCommandContextAsync(CachedUserMessage message, string prefix) 
-            => new ValueTask<DiscordCommandContext>(VolteContext.Create(this, prefix, message));
+            => VolteContext.Create(this, prefix, message);
+
+        public override object GetService(Type serviceType) 
+            => serviceType == typeof(VolteBot) || serviceType == GetType()
+                ? this
+                : _provider.GetService(serviceType);
     }
 }

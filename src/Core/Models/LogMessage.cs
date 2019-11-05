@@ -10,7 +10,7 @@ namespace Volte.Core.Models
         public string Message { get; private set; }
         public Exception Exception { get; private set; }
 
-        public static LogMessage FromDiscordLogMessage(MessageLoggedEventArgs message)
+        public static LogMessage FromDisqordLogMessage(MessageLoggedEventArgs message)
             => new LogMessage
             {
                 Message = message.Message,
@@ -21,6 +21,7 @@ namespace Volte.Core.Models
                     "Rest" => LogSource.Rest,
                     "Discord" => LogSource.Discord,
                     "Gateway" => LogSource.Gateway,
+                    "Client" => LogSource.Discord,
                     _ => LogSource.Unknown
                 }
             };

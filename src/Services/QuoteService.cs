@@ -6,6 +6,7 @@ using Disqord.Bot;
 using Disqord.Events;
 using Gommon;
 using Volte.Commands;
+using Volte.Core;
 using Volte.Core.Models.EventArgs;
 
 namespace Volte.Services
@@ -13,10 +14,10 @@ namespace Volte.Services
     //thanks MODiX for the idea and some of the code (definitely the regex lol)
     public class QuoteService : VolteEventService
     {
-        private readonly DiscordBot _bot;
+        private readonly VolteBot _bot;
         private readonly DatabaseService _db;
 
-        public QuoteService(DiscordBot bot,
+        public QuoteService(VolteBot bot,
             DatabaseService databaseService)
         {
             _bot = bot;

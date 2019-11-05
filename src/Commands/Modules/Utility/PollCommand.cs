@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord;
 using Gommon;
 using Qmmands;
 using Volte.Commands.Results;
@@ -23,7 +22,7 @@ namespace Volte.Commands.Modules
                     : "No options specified.");
 
             var embed = Context.CreateEmbedBuilder()
-                .WithDescription(Format.Bold(choices[0]))
+                .WithDescription(FormatHelper.Bold(choices[0]))
                 .WithTitle($"Poll by {Context.User}")
                 .WithThumbnailUrl("http://survation.com/wp-content/uploads/2016/09/polleverywherelogo.png");
 

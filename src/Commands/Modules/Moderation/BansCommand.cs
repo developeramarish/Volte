@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Discord;
+using Disqord;
 using Qmmands;
 using Volte.Core.Attributes;
 using Volte.Commands.Results;
@@ -13,7 +13,7 @@ namespace Volte.Commands.Modules
         [Command("Bans")]
         [Description("Shows all bans in this guild.")]
         [Remarks("bans")]
-        [RequireBotGuildPermission(GuildPermission.BanMembers)]
+        [RequireBotGuildPermission(Permission.BanMembers)]
         [RequireGuildModerator]
         public async Task<ActionResult> BansAsync()
         {

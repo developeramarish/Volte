@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
+using Disqord;
+using Disqord.Rest;
 using Humanizer;
 using Qmmands;
 using Volte.Commands.Results;
@@ -23,23 +23,19 @@ namespace Volte.Commands.Modules
             var e = Context.CreateEmbedBuilder(new StringBuilder()
                 .AppendLine($"{m.Content}")
                 .AppendLine()
-                .AppendLine($"[Jump!]({m.GetJumpUrl()})")
+                .AppendLine($"[Jump!]({GetJumpUrl(m)})")
                 .ToString())
-                .WithAuthor($"{m.Author}, in #{m.Channel.Name}",
+                .WithAuthor($"{m.Author}, in #{Context.Channel.Name}",
                     m.Author.GetAvatarUrl())
-                .WithFooter(m.Timestamp.Humanize());
-            if (m.Attachments.Count > 0)
-            {
-                e.WithImageUrl(m.Attachments.FirstOrDefault()?.Url);
-            }
+                .WithFooter(m.Id.CreatedAt.Humanize());
 
             return Ok(e);
         }
 
         [Command("Quote"), Priority(1)]
         [Description("Quotes a user in a different chanel from a given message's ID.")]
-        [Remarks("quote {messageId}")]
-        public async Task<ActionResult> QuoteAsync(SocketTextChannel channel, ulong messageId)
+        [Remarks("quote {channel} {messageId}")]
+        public async Task<ActionResult> QuoteAsync(CachedTextChannel channel, ulong messageId)
         {
             var m = await channel.GetMessageAsync(messageId);
             if (m is null)
@@ -48,17 +44,20 @@ namespace Volte.Commands.Modules
             var e = Context.CreateEmbedBuilder(new StringBuilder()
                     .AppendLine($"{m.Content}")
                     .AppendLine()
-                    .AppendLine($"[Jump!]({m.GetJumpUrl()})")
+                    .AppendLine($"[Jump!]({GetJumpUrl(m, channel)})")
                     .ToString())
-                .WithAuthor($"{m.Author}, in #{m.Channel.Name}",
+                .WithAuthor($"{m.Author}, in #{channel.Name}",
                     m.Author.GetAvatarUrl())
-                .WithFooter(m.Timestamp.Humanize());
-            if (m.Attachments.Count > 0)
-            {
-                e.WithImageUrl(m.Attachments.FirstOrDefault()?.Url);
-            }
+                .WithFooter(m.Id.CreatedAt.Humanize());
 
             return Ok(e);
+        }
+
+        private string GetJumpUrl(RestMessage m, CachedTextChannel channel = null)
+        {
+            return channel is null 
+                ? $"https://discordapp.com/{Context.Guild.Id}/{Context.Channel.Id}/{m.Id}" 
+                : $"https://discordapp.com/{channel.Guild.Id}/{channel.Id}/{m.Id}";
         }
     }
 }

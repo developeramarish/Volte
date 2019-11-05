@@ -18,7 +18,7 @@ namespace Volte.Commands.Modules
 
             var roleList = Context.GuildData.Extras.SelfRoles.Select(x =>
                 {
-                    var currentRole = Context.Guild.Roles.FirstOrDefault(r => r.Name.EqualsIgnoreCase(x));
+                    var currentRole = Context.Guild.Roles.FirstOrDefault(r => r.Value.Name.EqualsIgnoreCase(x)).Value;
                     return currentRole is null ? "" : $"**{currentRole.Name}**";
                 })
                 .Where(x => !x.IsNullOrEmpty()).Join("\n");
