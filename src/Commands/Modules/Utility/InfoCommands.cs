@@ -6,6 +6,7 @@ using Gommon;
 using Humanizer;
 using Qmmands;
 using Volte.Commands.Results;
+using Volte.Core;
 using Volte.Services;
 
 namespace Volte.Commands.Modules
@@ -24,7 +25,7 @@ namespace Volte.Commands.Modules
                 .AddField("Language/Library", $"C# 8, Disqord {Version.DisqordVersion}", true)
                 .AddField("Guilds", Context.Bot.Guilds.Count, true)
                 .AddField("Channels", Context.Bot.Guilds.SelectMany(x => x.Value.Channels).DistinctBy(x => x.Value.Id).Count(), true)
-                .AddField("Invite Me", $"`{CommandService.GetCommand("Invite").GetUsage(Context)}`", true)
+                .AddField("Invite Me", $"`{Bot.GetCommand("Invite").GetUsage(Context)}`", true)
                 .AddField("Uptime", Process.GetCurrentProcess().GetUptime(), true)
                 .AddField("Successful Commands", CommandsService.SuccessfulCommandCalls, true)
                 .AddField("Failed Commands", CommandsService.FailedCommandCalls, true)

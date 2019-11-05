@@ -13,6 +13,7 @@ namespace Volte.Commands.Modules
 {
     public sealed partial class BotOwnerModule : VolteModule
     {
+        
         [Command("DevInfo", "Di")]
         [Description("Shows information about the bot and about the system it's hosted on.")]
         [Remarks("devinfo")]
@@ -20,12 +21,12 @@ namespace Volte.Commands.Modules
         public Task<ActionResult> DevInfoAsync() 
             => Ok(FormatHelper.Code(new StringBuilder()
                     .AppendLine("== Core ==")
-                    .AppendLine($"{Context.Bot.Guilds.Count} Guilds")
-                    .AppendLine($"{Context.Bot.Guilds.Values.Sum(x => x.Channels.Count)} Text/Voice Channels")
+                    .AppendLine($"{Bot.Guilds.Count} Guilds")
+                    .AppendLine($"{Bot.Guilds.Values.Sum(x => x.Channels.Count)} Text/Voice Channels")
                     .AppendLine("== Commands ==")
-                    .AppendLine($"{CommandService.GetAllModules().Count} Modules")
-                    .AppendLine($"{CommandService.GetAllCommands().Count} Commands")
-                    .AppendLine($"{CommandService.GetTotalTypeParsers()} TypeParsers")
+                    .AppendLine($"{Bot.GetAllModules().Count} Modules")
+                    .AppendLine($"{Bot.GetAllCommands().Count} Commands")
+                    .AppendLine($"{Bot.GetTotalTypeParsers()} TypeParsers")
                     .AppendLine("== Environment ==")
                     .AppendLine($"OS: {Environment.OSVersion}")
                     .AppendLine($"Processor Count: {Environment.ProcessorCount}")

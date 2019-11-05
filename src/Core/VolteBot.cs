@@ -72,7 +72,7 @@ namespace Volte.Core
 
             
 
-            await handler.InitializeAsync(this);
+            await handler.InitializeAsync();
 
             try
             {

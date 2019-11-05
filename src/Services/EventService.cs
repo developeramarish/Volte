@@ -22,9 +22,9 @@ namespace Volte.Services
         private readonly LoggingService _logger;
         private readonly DatabaseService _db;
         private readonly AntilinkService _antilink;
+        private readonly VolteBot _bot;
         private readonly BlacklistService _blacklist;
         private readonly PingChecksService _pingchecks;
-        private readonly CommandService _commandService;
         private readonly CommandsService _commandsService;
         private readonly QuoteService _quoteService;
 
@@ -34,18 +34,18 @@ namespace Volte.Services
         public EventService(LoggingService loggingService,
             DatabaseService databaseService,
             AntilinkService antilinkService,
+            VolteBot bot,
             BlacklistService blacklistService,
             PingChecksService pingChecksService,
-            CommandService commandService,
             CommandsService commandsService,
             QuoteService quoteService)
         {
             _logger = loggingService;
             _antilink = antilinkService;
+            _bot = bot;
             _db = databaseService;
             _blacklist = blacklistService;
             _pingchecks = pingChecksService;
-            _commandService = commandService;
             _commandsService = commandsService;
             _quoteService = quoteService;
         }
@@ -71,7 +71,7 @@ namespace Volte.Services
                 out var cmd))
             {
                 var sw = Stopwatch.StartNew();
-                var result = await _commandService.ExecuteAsync(cmd, context);
+                var result = await _bot.ExecuteAsync(cmd, context);
 
                 if (result is CommandNotFoundResult) return;
 

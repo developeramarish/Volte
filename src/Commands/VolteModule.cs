@@ -4,6 +4,7 @@ using Disqord;
 using Disqord.Bot;
 using Qmmands;
 using Volte.Commands.Results;
+using Volte.Core;
 using Volte.Services;
 
 namespace Volte.Commands
@@ -16,6 +17,7 @@ namespace Volte.Commands
         public CommandService CommandService { get; set; }
         public EmojiService EmojiService { get; set; }
         public LoggingService Logger { get; set; }
+        public VolteBot Bot { get; set; }
 
 
         protected ActionResult Ok(

@@ -21,10 +21,10 @@ namespace Gommon
                 .Replace(c.Name.ToLower(), (c.FullAliases.Count > 1 ? $"({c.FullAliases.Join('|')})" : c.Name).ToLower())
                 .Insert(0, ctx.GuildData.Configuration.CommandPrefix);
 
-        internal static Task<List<Type>> AddTypeParsersAsync(this CommandService service)
+        internal static Task<List<Type>> AddTypeParsersAsync(this VolteBot bot)
         {
             var currentAssembly = Assembly.GetExecutingAssembly();
-            var addTypeParserMethod = typeof(CommandService).GetMethod("AddTypeParser");
+            var addTypeParserMethod = typeof(VolteBot).GetMethod("AddTypeParser");
             var parsers = currentAssembly.ExportedTypes.Where(x => x.HasAttribute<VolteTypeParserAttribute>());
 
             var loadedTypes = new List<Type>();
@@ -34,7 +34,7 @@ namespace Gommon
                 var attr = parserType.GetCustomAttribute<VolteTypeParserAttribute>();
                 var parser = parserType.GetConstructor(Type.EmptyTypes)?.Invoke(Array.Empty<object>());
                 var method = addTypeParserMethod?.MakeGenericMethod(parserType.BaseType?.GenericTypeArguments[0]);
-                method?.Invoke(service, new[] {parser, attr.OverridePrimitive});
+                method?.Invoke(bot, new[] {parser, attr.OverridePrimitive});
                 loadedTypes.Add(parserType);
             }
 
@@ -42,10 +42,10 @@ namespace Gommon
             return Task.FromResult(loadedTypes);
         }
 
-        public static Command GetCommand(this CommandService service, string name)
-            => service.GetAllCommands().FirstOrDefault(x => x.FullAliases.ContainsIgnoreCase(name));
+        public static Command GetCommand(this VolteBot bot, string name)
+            => bot.GetAllCommands().FirstOrDefault(x => x.FullAliases.ContainsIgnoreCase(name));
 
-        public static int GetTotalTypeParsers(this CommandService _)
+        public static int GetTotalTypeParsers(this VolteBot _)
         {
             var customParsers = typeof(VolteBot).Assembly.GetTypes()
                 .Count(x => x.HasAttribute<VolteTypeParserAttribute>());

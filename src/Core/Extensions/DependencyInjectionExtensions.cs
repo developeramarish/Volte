@@ -22,15 +22,6 @@ namespace Gommon
                 .AddSingleton(new RestClient {UserAgent = $"Volte/{Version.FullVersion}"})
                 .AddSingleton<HttpClient>()
                 .AddSingleton<CancellationTokenSource>()
-                .AddSingleton(new CommandService(new CommandServiceConfiguration
-                {
-                    IgnoresExtraArguments = true,
-                    StringComparison = StringComparison.OrdinalIgnoreCase,
-                    DefaultRunMode = RunMode.Sequential,
-                    SeparatorRequirement = SeparatorRequirement.SeparatorOrWhitespace,
-                    Separator = "irrelevant",
-                    NullableNouns = null
-                }))
                 .AddSingleton(bot);
 
         public static IServiceCollection AddVolteServices(this IServiceCollection coll)
