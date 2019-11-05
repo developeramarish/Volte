@@ -104,8 +104,9 @@ namespace Gommon
                 bot.Ready += args => evt.OnReady(args);
                 bot.MessageReceived += async args =>
                 {
-                    if (!(args.Message is CachedUserMessage msg) || msg.Author.IsBot) return;
-                    if (msg.Channel is IDmChannel dmc)
+                    Console.WriteLine("Bruh");
+                    if (!(args.Message is IUserMessage) || args.Message.Author.IsBot) return;
+                    if (args.Message.Channel is IDmChannel dmc)
                     {
                         await dmc.SendMessageAsync("Currently, I do not support commands via DM.");
                         return;

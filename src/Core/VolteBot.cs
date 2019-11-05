@@ -116,8 +116,8 @@ namespace Volte.Core
         protected override ValueTask<bool> BeforeExecutedAsync(CachedUserMessage message) 
             => new ValueTask<bool>(message.Guild != null);
 
-        protected override ValueTask<DiscordCommandContext> GetCommandContextAsync(CachedUserMessage message, string prefix) 
-            => VolteContext.Create(this, prefix, message);
+        protected override ValueTask<DiscordCommandContext> GetCommandContextAsync(CachedUserMessage message, string _) 
+            => VolteContext.Create(this, string.Empty, message);
 
         public override object GetService(Type serviceType) 
             => serviceType == typeof(VolteBot) || serviceType == GetType()

@@ -64,8 +64,7 @@ namespace Volte.Services
 
             var prefixes = new List<string>
             {
-                data.Configuration.CommandPrefix, $"<@{evnt.Client.CurrentUser.Id}> ",
-                $"<@!{evnt.Client.CurrentUser.Id}> "
+                $"{data.Configuration.CommandPrefix} ", $"{evnt.Client.CurrentUser.Mention} "
             };
 
             if (CommandUtilities.HasAnyPrefix(evnt.Message.Content, prefixes, StringComparison.OrdinalIgnoreCase, out _,
