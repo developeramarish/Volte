@@ -46,6 +46,11 @@ namespace Volte.Services
                     code = code.Substring(5);
                     code = code.Remove(code.LastIndexOf("```", StringComparison.OrdinalIgnoreCase), 3);
                 }
+                else if (code.StartsWith('`') && code.EndsWith('`'))
+                {
+                    code = code.Substring(1);
+                    code = code.Remove(code.LastIndexOf('`'), 1);
+                }
 
                 await ExecuteScriptAsync(code, ctx);
 
@@ -118,12 +123,12 @@ namespace Volte.Services
             }
         }
 
-        private readonly ReadOnlyList<string> _imports = new ReadOnlyList<string>(new ReadOnlyList<string>(new List<string>
+        private readonly ReadOnlyList<string> _imports = new ReadOnlyList<string>(new List<string>
         {
             "System", "System.Collections.Generic", "System.Linq", "System.Text",
             "System.Diagnostics", "Disqord", "System.IO", "Volte.Core.Models.EventArgs",
             "System.Threading", "Gommon", "Volte.Core.Models", "Humanizer", "System.Globalization",
             "Volte.Core", "Volte.Services", "System.Threading.Tasks", "Qmmands"
-        }));
+        });
     }
 }

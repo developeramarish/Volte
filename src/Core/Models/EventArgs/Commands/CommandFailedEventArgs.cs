@@ -9,15 +9,12 @@ namespace Volte.Core.Models.EventArgs
         public FailedResult Result { get; }
         public override VolteContext Context { get; }
         public string Arguments { get; }
-        public Stopwatch Stopwatch { get; }
 
-        public CommandFailedEventArgs(FailedResult res, VolteContext ctx, string args,
-            Stopwatch sw)
+        public CommandFailedEventArgs(FailedResult res, VolteContext ctx, string args)
         {
             Result = res;
             Context = ctx;
             Arguments = args;
-            Stopwatch = sw;
         }
     }
 }

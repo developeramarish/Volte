@@ -20,33 +20,33 @@ namespace Volte.Commands
         public VolteBot Bot { get; set; }
 
 
-        protected ActionResult Ok(
+        protected static ActionResult Ok(
             string text, 
             Func<IUserMessage, Task> afterCompletion = null,
             bool shouldEmbed = true) 
             => new OkResult(text, shouldEmbed, null, afterCompletion);
 
-        protected ActionResult Ok(
+        protected static ActionResult Ok(
             Func<Task> logic, 
             bool awaitLogic = true) 
             => new OkResult(logic, awaitLogic);
 
 
-        protected ActionResult Ok(
+        protected static ActionResult Ok(
             LocalEmbedBuilder embed, 
             Func<IUserMessage, Task> afterCompletion = null) 
             => new OkResult(null, true, embed, afterCompletion);
 
-        protected ActionResult Ok(string text) 
+        protected static ActionResult Ok(string text) 
             => new OkResult(text);
 
-        protected ActionResult Ok(LocalEmbedBuilder embed) 
+        protected static ActionResult Ok(LocalEmbedBuilder embed) 
             => new OkResult(null, true, embed);
 
-        protected ActionResult BadRequest(string reason) 
+        protected static ActionResult BadRequest(string reason) 
             => new BadRequestResult(reason);
 
-        protected ActionResult None(
+        protected static ActionResult None(
             Func<Task> afterCompletion = null, 
             bool awaitCallback = true) 
             => new NoResult(afterCompletion, awaitCallback);

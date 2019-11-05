@@ -9,13 +9,11 @@ namespace Volte.Core.Models.EventArgs
     {
         public IResult Result { get; }
         public override VolteContext Context { get; }
-        public Stopwatch Stopwatch { get; }
 
-        public CommandCalledEventArgs(IResult res, CommandContext context, Stopwatch sw)
+        public CommandCalledEventArgs(IResult res, CommandContext context)
         {
             Result = res;
             Context = context.Cast<VolteContext>();
-            Stopwatch = sw;
         }
     }
 }

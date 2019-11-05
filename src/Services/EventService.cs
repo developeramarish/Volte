@@ -52,7 +52,7 @@ namespace Volte.Services
 
         public async Task HandleMessageAsync(MessageReceivedEventArgs evnt)
         {
-            var context = VolteContext.FromMessageReceivedEventArgs(evnt);
+            var context = await _bot.GetCommandContextAsync(evnt.Message.Cast<CachedUserMessage>());
             if (Config.EnabledFeatures.Blacklist)
                 await _blacklist.DoAsync(evnt);
             if (Config.EnabledFeatures.Antilink)
@@ -68,20 +68,19 @@ namespace Volte.Services
             };
 
             if (CommandUtilities.HasAnyPrefix(evnt.Message.Content, prefixes, StringComparison.OrdinalIgnoreCase, out _,
-                out var cmd))
+                out var output))
             {
                 var sw = Stopwatch.StartNew();
-                var result = await _bot.ExecuteAsync(cmd, context);
+                var result = await _bot.ExecuteAsync(output, context);
 
                 if (result is CommandNotFoundResult) return;
 
                 sw.Stop();
-                await _commandsService.OnCommandAsync(new CommandCalledEventArgs(result, context, sw));
+                await _commandsService.OnCommandAsync(new CommandCalledEventArgs(result, context));
 
-                if (context.GuildData.Configuration.DeleteMessageOnCommand)
-                    if (!await evnt.Message.TryDeleteAsync())
-                        _logger.Warn(LogSource.Service, $"Could not act upon the DeleteMessageOnCommand setting for {context.Guild.Name} as the bot is missing the required permission, or another error occured.");
-                return;
+                if (!context.GuildData.Configuration.DeleteMessageOnCommand) return;
+                if (!await evnt.Message.TryDeleteAsync())
+                    _logger.Warn(LogSource.Service, $"Could not act upon the DeleteMessageOnCommand setting for {context.Guild.Name} as the bot is missing the required permission, or another error occured.");
             }
 
             await _quoteService.DoAsync(evnt);

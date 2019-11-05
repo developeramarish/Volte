@@ -79,6 +79,7 @@ namespace Gommon
         public static Task RegisterVolteEventHandlersAsync(this VolteBot bot)
         {
             bot.Get<WelcomeService>(out var welcome);
+            bot.Get<CommandsService>(out var commands);
             bot.Get<GuildService>(out var guild);
             bot.Get<EventService>(out var evt);
             bot.Get<AutoroleService>(out var autorole);
@@ -102,18 +103,6 @@ namespace Gommon
                 };
                 
                 bot.Ready += args => evt.OnReady(args);
-                bot.MessageReceived += async args =>
-                {
-                    Console.WriteLine("Bruh");
-                    if (!(args.Message is IUserMessage) || args.Message.Author.IsBot) return;
-                    if (args.Message.Channel is IDmChannel dmc)
-                    {
-                        await dmc.SendMessageAsync("Currently, I do not support commands via DM.");
-                        return;
-                    }
-
-                    await evt.HandleMessageAsync(args);
-                };
                 bot.Logger.MessageLogged += async (_, args) => await logger.DoAsync(new LogEventArgs(args));
 
                 return Task.CompletedTask;

@@ -10,18 +10,19 @@ namespace Volte.Core.Models
         public string Message { get; private set; }
         public Exception Exception { get; private set; }
 
-        public static LogMessage FromDisqordLogMessage(MessageLoggedEventArgs message)
+        public static LogMessage FromDisqordLogMessage(MessageLoggedEventArgs args)
             => new LogMessage
             {
-                Message = message.Message,
-                Severity = message.Severity,
-                Exception = message.Exception,
-                Source = message.Source switch
+                Message = args.Message,
+                Severity = args.Severity,
+                Exception = args.Exception,
+                Source = args.Source switch
                 {
                     "Rest" => LogSource.Rest,
                     "Discord" => LogSource.Discord,
                     "Gateway" => LogSource.Gateway,
-                    "Client" => LogSource.Discord,
+                    "Client" => LogSource.Volte,
+                    "Bot" => LogSource.Volte,
                     _ => LogSource.Unknown
                 }
             };

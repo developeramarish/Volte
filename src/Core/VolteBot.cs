@@ -7,8 +7,10 @@ using Disqord;
 using Disqord.Bot;
 using Gommon;
 using Microsoft.Extensions.DependencyInjection;
+using Qmmands;
 using Volte.Commands;
 using Volte.Core.Models;
+using Volte.Core.Models.EventArgs;
 using Volte.Services;
 using Color = System.Drawing.Color;
 using Console = Colorful.Console;
@@ -60,7 +62,9 @@ namespace Volte.Core
 
             _config = new DiscordBotConfiguration
             {
-                ProviderFactory = x => BuildServiceProvider(this)
+                ProviderFactory = x => BuildServiceProvider(this),
+                HasMentionPrefix = true,
+                Prefixes = new [] {Config.CommandPrefix}
             };
 
             _provider = _config.ProviderFactory(this);
@@ -113,11 +117,23 @@ namespace Volte.Core
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
         }
 
-        protected override ValueTask<bool> BeforeExecutedAsync(CachedUserMessage message) 
-            => new ValueTask<bool>(message.Guild != null);
+        protected override async ValueTask<bool> BeforeExecutedAsync(CachedUserMessage message)
+        {
+            var r = await base.BeforeExecutedAsync(message);
+            return r && message.Guild != null;
+        }
+
+        protected override async ValueTask AfterExecutedAsync(IResult result, DiscordCommandContext context)
+        {
+            _provider.Get<CommandsService>(out var commands);
+            await commands.OnCommandAsync(new CommandCalledEventArgs(result, context));
+        }
 
         protected override ValueTask<DiscordCommandContext> GetCommandContextAsync(CachedUserMessage message, string _) 
             => VolteContext.Create(this, string.Empty, message);
+
+        public async Task<VolteContext> GetCommandContextAsync(CachedUserMessage message)
+            => (await GetCommandContextAsync(message, string.Empty)).Cast<VolteContext>();
 
         public override object GetService(Type serviceType) 
             => serviceType == typeof(VolteBot) || serviceType == GetType()
