@@ -42,37 +42,34 @@ namespace Volte.Core
 
             if (!Config.IsValidToken()) return;
 
-            await new VolteBot().LoginAsync();
+            _config = new DiscordBotConfiguration
+            {
+                ProviderFactory = x => BuildServiceProvider(x.Cast<VolteBot>()),
+                HasMentionPrefix = true,
+                Prefixes = new[] { Config.CommandPrefix }
+            };
+
+            await new VolteBot(TokenType.Bot, Config.Token, _config).InitializeAsync();
         }
 
-        private IServiceProvider _provider;
         private CancellationTokenSource _cts;
-        private DiscordBotConfiguration _config;
+        private static DiscordBotConfiguration _config;
+        private IServiceProvider _provider;
 
         private static IServiceProvider BuildServiceProvider(VolteBot bot)
             => new ServiceCollection() 
                 .AddAllServices(bot)
                 .BuildServiceProvider();
 
-        private VolteBot() : base(TokenType.Bot, Config.Token)
+        private VolteBot(TokenType type, string token, DiscordBotConfiguration config) : base(type, token, config)
             => Console.CancelKeyPress += (s, _) => _cts.Cancel();
 
-        private async Task LoginAsync()
+        private async Task InitializeAsync()
         {
-
-            _config = new DiscordBotConfiguration
-            {
-                ProviderFactory = x => BuildServiceProvider(this),
-                HasMentionPrefix = true,
-                Prefixes = new [] {Config.CommandPrefix}
-            };
-
             _provider = _config.ProviderFactory(this);
-            
-
-            _provider.Get(out _cts);
-            _provider.Get<HandlerService>(out var handler);
-            _provider.Get<LoggingService>(out var logger);
+            this.Get(out _cts);
+            this.Get<HandlerService>(out var handler);
+            this.Get<LoggingService>(out var logger);
 
             
 
@@ -103,19 +100,10 @@ namespace Volte.Core
                     .SendToAsync(channel);
             }
 
-            await DisposeAsync();
             await base.DisposeAsync();
-            Dispose(cts, bot, DatabaseService.Database);
             Environment.Exit(0);
         }
 
-        private void Dispose(params IDisposable[] disposables)
-        {
-            foreach (var disposable in disposables)
-                disposable.Dispose();
-
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
-        }
 
         protected override async ValueTask<bool> BeforeExecutedAsync(CachedUserMessage message)
         {
@@ -125,7 +113,8 @@ namespace Volte.Core
 
         protected override async ValueTask AfterExecutedAsync(IResult result, DiscordCommandContext context)
         {
-            _provider.Get<CommandsService>(out var commands);
+            Console.WriteLine(result.GetType());
+            this.Get<CommandsService>(out var commands);
             await commands.OnCommandAsync(new CommandCalledEventArgs(result, context));
         }
 

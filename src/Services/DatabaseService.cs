@@ -24,11 +24,11 @@ namespace Volte.Services
 
         public GuildData GetData(CachedGuild guild) => GetData(guild.Id);
 
-        public GuildData GetData(ulong id)
+        public GuildData GetData(Snowflake id)
         {
             _logger.Debug(LogSource.Volte, $"Getting data for guild {id}.");
             var coll = Database.GetCollection<GuildData>("guilds");
-            var conf = coll.FindOne(g => g.Id == id);
+            var conf = coll.FindOne(g => g.Id.Equals(id.RawValue));
             if (!(conf is null)) return conf;
             var newConf = Create(_bot.GetGuild(id));
             coll.Insert(newConf);
@@ -46,8 +46,8 @@ namespace Volte.Services
         private static GuildData Create(CachedGuild guild)
             => new GuildData
             {
-                Id = guild.Id,
-                OwnerId = guild.OwnerId,
+                Id = guild.Id.RawValue,
+                OwnerId = guild.OwnerId.RawValue,
                 Configuration = new GuildConfiguration
                 {
                     Autorole = default,
