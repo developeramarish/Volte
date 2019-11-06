@@ -83,18 +83,18 @@ namespace Volte.Core
             {
                 logger.Critical(LogSource.Volte,
                     "Bot shutdown requested; shutting down and cleaning up.");
-                await ShutdownAsync(this, _cts);
+                await ShutdownAsync();
             }
         }
 
         // ReSharper disable SuggestBaseTypeForParameter
-        private async Task ShutdownAsync(VolteBot bot, CancellationTokenSource cts)
+        private async Task ShutdownAsync()
         {
-            if (Config.GuildLogging.EnsureValidConfiguration(bot, out var channel))
+            if (Config.GuildLogging.EnsureValidConfiguration(this, out var channel))
             {
                 await new LocalEmbedBuilder()
                     .WithErrorColor()
-                    .WithAuthor(bot.GetOwner())
+                    .WithAuthor(this.GetOwner())
                     .WithDescription(
                         $"Volte {Version.FullVersion} is shutting down at **{DateTimeOffset.UtcNow.FormatFullTime()}, on {DateTimeOffset.UtcNow.FormatDate()}**. I was online for **{Process.GetCurrentProcess().GetUptime()}**!")
                     .SendToAsync(channel);
@@ -128,5 +128,18 @@ namespace Volte.Core
             => serviceType == typeof(VolteBot) || serviceType == GetType()
                 ? this
                 : _provider.GetService(serviceType);
+
+        protected override ValueTask<(string Prefix, string Output)> FindPrefixAsync(CachedUserMessage message)
+        {
+            this.Get<DatabaseService>(out var db);
+            var prefixes = new []
+            {
+                message.Client.CurrentUser.Mention, 
+                db.GetData(message.Guild.Id.RawValue).Configuration.CommandPrefix
+            };
+            return CommandUtilities.HasAnyPrefix(message.Content, prefixes, out var p, out var o) 
+                ? new ValueTask<(string Prefix, string Output)>((p, o)) 
+                : default;
+        }
     }
 }

@@ -124,8 +124,6 @@ namespace Volte.Services
                             $"Left guild \"{guild.Name}\" owned by blacklisted owner {guild.Owner}.");
                         await guild.LeaveAsync();
                     }
-
-                    _ = _db.GetData(guild); //ensuring all guilds have data available to prevent exceptions later on 
                 }
             });
 
