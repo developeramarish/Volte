@@ -1,18 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using Disqord;
-using LiteDB;
 using Volte.Core;
 using Volte.Core.Models;
 using Volte.Core.Models.Guild;
 
 namespace Volte.Services
 {
-    public sealed class DatabaseService : VolteService, IDisposable
+    public sealed class DatabaseService : VolteService
     {
-        public static readonly LiteDatabase Database = new LiteDatabase("data/Volte.db");
+        private static Func<GuildData, ulong, bool> _equals = (data, id) => data?.Id == id;
 
         private readonly VolteBot _bot;
         private readonly LoggingService _logger;
@@ -24,34 +22,48 @@ namespace Volte.Services
             _logger = loggingService;
         }
 
-        public GuildData GetData(CachedGuild guild) => GetData(guild.Id.RawValue);
+        public GuildData GetData(Snowflake id)
+        {
+            using (var db = new VolteDbContext())
+            {
+                var conf = db.Guilds.FirstOrDefault(x => x.Id == id.RawValue);
+                if (conf is null)
+                {
+                    conf = Create(_bot.GetGuild(id));
+                    db.Guilds.Add(conf);
+                }
 
-        public GuildData GetData(ulong id)
+                return conf;
+            }
+        }
+
+        public void ModifyData(CachedGuild guild, Action<GuildData> action) => ModifyData(guild.Id, action);
+
+        public void ModifyData(Snowflake id, Action<GuildData> action)
         {
             try
             {
                 _logger.Debug(LogSource.Volte, $"Getting data for guild {id}.");
-                var coll = Database.GetCollection<GuildData>("guilds");
-                var conf = coll.FindOne(x => x.Id == id);
-                if (conf != null) return conf;
-                var newConf = Create(_bot.GetGuild(id));
-                coll.Insert(newConf);
-                return newConf;
+
+                using (var db = new VolteDbContext())
+                {
+                    var conf = db.Guilds.FirstOrDefault(x => x.Id == id.RawValue);
+                    if (conf is null)
+                    {
+                        conf = Create(_bot.GetGuild(id));
+                        db.Guilds.Add(conf);
+                    }
+
+                    action.Invoke(conf);
+                    db.SaveChanges();
+                }
+
             }
             catch (Exception e)
             {
                 _logger.Error(LogSource.Service, e.Message, e);
-                return null;
             }
 
-        }
-
-        public void UpdateData(GuildData newConfig)
-        {
-            _logger.Debug(LogSource.Volte, $"Updating data for guild {newConfig.Id}");
-            var collection = Database.GetCollection<GuildData>("guilds");
-            collection.EnsureIndex(s => s.Id, true);
-            collection.Update(newConfig);
         }
 
         private static GuildData Create(CachedGuild guild)
@@ -89,8 +101,5 @@ namespace Volte.Services
                     Warns = new List<Warn>()
                 }
             };
-
-        public void Dispose() 
-            => Database.Dispose();
     }
 }

@@ -14,13 +14,14 @@ namespace Volte.Commands.Modules
         [Remarks("help")]
         public Task<ActionResult> HelpAsync(string moduleOrCommand = null)
         {
+            var d = Db.GetData(Context.Guild.Id);
             if (moduleOrCommand is null)
             {
                 return Ok(new StringBuilder()
                     .AppendLine("Hey, I'm Volte! Here's a list of my modules and commands designed to help you out.")
                     .AppendLine(
-                        $"Use `{Context.GuildData.Configuration.CommandPrefix}help {{moduleName}}` to list all commands in a module, " +
-                        $"and `{Context.GuildData.Configuration.CommandPrefix}help {{commandName}}` to show information about a command.")
+                        $"Use `{d.Configuration.CommandPrefix}help {{moduleName}}` to list all commands in a module, " +
+                        $"and `{d.Configuration.CommandPrefix}help {{commandName}}` to show information about a command.")
                     .AppendLine()
                     .AppendLine(
                         $"Available Modules: `{CommandService.GetAllModules().Select(x => x.SanitizeName()).Join("`, `")}`")

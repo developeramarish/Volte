@@ -34,7 +34,7 @@ namespace Volte.Services
         private async Task CheckMessageAsync(MessageReceivedEventArgs args)
         {
             var ctx = VolteContext.FromMessageReceivedEventArgs(args);
-            if (!ctx.GuildData.Configuration.Moderation.Antilink ||
+            if (!ctx.Db.GetData(ctx.Guild.Id).Configuration.Moderation.Antilink ||
                 ctx.Member.IsAdmin(_bot)) return;
 
             _logger.Debug(LogSource.Volte,

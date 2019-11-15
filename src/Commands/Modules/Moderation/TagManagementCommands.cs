@@ -18,7 +18,8 @@ namespace Volte.Commands.Modules
         [RequireGuildModerator]
         public Task<ActionResult> TagCreateAsync(string name, [Remainder] string response)
         {
-            var tag = Context.GuildData.Extras.Tags.FirstOrDefault(t => t.Name.EqualsIgnoreCase(name));
+            var d = Db.GetData(Context.Guild.Id);
+            var tag = d.Extras.Tags.FirstOrDefault(t => t.Name.EqualsIgnoreCase(name));
             if (tag != null)
             {
                 var user = Context.Bot.GetUserAsync(tag.CreatorId);
@@ -35,8 +36,7 @@ namespace Volte.Commands.Modules
                 Uses = default
             };
 
-            Context.GuildData.Extras.Tags.Add(tag);
-            Db.UpdateData(Context.GuildData);
+            Db.ModifyData(Context.Guild, data => data.Extras.Tags.Add(tag));
 
             return Ok(Context.CreateEmbedBuilder()
                 .WithTitle("Tag Created!")
@@ -52,8 +52,7 @@ namespace Volte.Commands.Modules
         [RequireGuildModerator]
         public async Task<ActionResult> TagDeleteAsync([Remainder]Tag tag)
         {
-            Context.GuildData.Extras.Tags.Remove(tag);
-            Db.UpdateData(Context.GuildData);
+            Db.ModifyData(Context.Guild, data => data.Extras.Tags.Remove(tag));
             return Ok($"Deleted the tag **{tag.Name}**, created by " +
                       $"**{await Context.Bot.GetUserAsync(tag.CreatorId)}**, with " +
                       $"**{"use".ToQuantity(tag.Uses)}**.");

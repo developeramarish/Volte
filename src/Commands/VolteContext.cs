@@ -25,14 +25,13 @@ namespace Volte.Commands
         public VolteContext(DiscordBot bot, string prefix, CachedUserMessage msg) : base(bot, prefix, msg)
         {
             bot.Get(out _emojiService);
-            bot.Get<DatabaseService>(out var db);
+            bot.Get(out Db);
             Bot = bot;
             Guild = msg.Channel.Cast<CachedTextChannel>()?.Guild;
             Channel = msg.Channel.Cast<CachedTextChannel>();
             Member = msg.Author.Cast<CachedMember>();
             Message = msg;
             User = msg.Author.Cast<CachedMember>();
-            GuildData = db.GetData(Guild);
             Now = DateTimeOffset.UtcNow;
         }
 
@@ -42,7 +41,7 @@ namespace Volte.Commands
         public override CachedMember Member { get; }
         public override CachedUserMessage Message { get; }
         public override CachedUser User { get; }
-        public readonly GuildData GuildData;
+        public readonly DatabaseService Db;
         public readonly DateTimeOffset Now;
 
         public Task ReactFailureAsync() => Message.AddReactionAsync(_emojiService.X.ToEmoji());

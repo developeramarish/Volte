@@ -27,7 +27,7 @@ namespace Volte.Services
 
         internal async Task JoinAsync(CachedMember member)
         {
-            var data = _db.GetData(member.Guild);
+            var data = _db.GetData(member.Guild.Id);
 
             if (!data.Configuration.Welcome.WelcomeDmMessage.IsNullOrEmpty())
                 _ = await member.TrySendMessageAsync(data.Configuration.Welcome.FormatDmMessage(member));
@@ -58,7 +58,7 @@ namespace Volte.Services
 
         internal async Task LeaveAsync(CachedUser user, CachedGuild guild)
         {
-            var data = _db.GetData(guild);
+            var data = _db.GetData(guild.Id);
             if (data.Configuration.Welcome.LeavingMessage.IsNullOrEmpty()) return;
             _logger.Debug(LogSource.Volte,
                 "User left a guild, let's check to see if we should send a leaving embed.");

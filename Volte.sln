@@ -12,15 +12,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "submodules", "submodules", "{2C23D099-239E-4D4E-854D-2EEEA60EFC75}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Disqord", "submodules\Disqord\src\Disqord\Disqord.csproj", "{A668F250-5EA7-4064-8519-18135E5E991F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Disqord", "lib\Disqord\src\Disqord\Disqord.csproj", "{A668F250-5EA7-4064-8519-18135E5E991F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Disqord.Rest", "submodules\Disqord\src\Disqord.Rest\Disqord.Rest.csproj", "{65E7C95F-87CF-4A03-A93A-65E74CD8CF10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Disqord.Rest", "lib\Disqord\src\Disqord.Rest\Disqord.Rest.csproj", "{65E7C95F-87CF-4A03-A93A-65E74CD8CF10}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Disqord.Bot", "submodules\Disqord\src\Disqord.Bot\Disqord.Bot.csproj", "{0464E5DB-7171-464D-B73E-697EEC102607}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Disqord.Bot", "lib\Disqord\src\Disqord.Bot\Disqord.Bot.csproj", "{0464E5DB-7171-464D-B73E-697EEC102607}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Disqord.Core", "submodules\Disqord\src\Disqord.Core\Disqord.Core.csproj", "{A4FE91D7-0860-4B97-B1CF-13AB75F15755}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Disqord.Core", "lib\Disqord\src\Disqord.Core\Disqord.Core.csproj", "{A4FE91D7-0860-4B97-B1CF-13AB75F15755}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Disqord.Serialization.Json.Newtonsoft", "submodules\Disqord\src\Disqord.Serialization.Newtonsoft\Disqord.Serialization.Json.Newtonsoft.csproj", "{E62FAF2C-9B3E-4C73-845A-6B8EE77F4996}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Disqord.Serialization.Json.Newtonsoft", "lib\Disqord\src\Disqord.Serialization.Newtonsoft\Disqord.Serialization.Json.Newtonsoft.csproj", "{E62FAF2C-9B3E-4C73-845A-6B8EE77F4996}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

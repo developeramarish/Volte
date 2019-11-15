@@ -21,7 +21,7 @@ namespace Gommon
         public static bool IsModerator(this CachedMember user, IServiceProvider provider)
         {
             provider.Get<DatabaseService>(out var db);
-            return HasRole(user, db.GetData(user.Guild).Configuration.Moderation.ModRole) ||
+            return HasRole(user, db.GetData(user.Guild.Id).Configuration.Moderation.ModRole) ||
                    IsAdmin(user, provider) ||
                    IsGuildOwner(user);
         }
@@ -33,7 +33,7 @@ namespace Gommon
         {
             provider.Get<DatabaseService>(out var db);
             return HasRole(user,
-                       db.GetData(user.Guild).Configuration.Moderation.AdminRole) ||
+                       db.GetData(user.Guild.Id).Configuration.Moderation.AdminRole) ||
                    IsGuildOwner(user);
         }
 

@@ -25,7 +25,7 @@ namespace Volte.Services
 
         private async Task CheckMessageAsync(MessageReceivedEventArgs args)
         {
-            var data = _db.GetData(args.Message.Guild);
+            var data = _db.GetData(args.Message.Guild.Id);
             if (!data.Configuration.Moderation.Blacklist.Any()) return;
             _logger.Debug(LogSource.Volte, "Checking a message for blacklisted words.");
             foreach (var word in data.Configuration.Moderation.Blacklist)

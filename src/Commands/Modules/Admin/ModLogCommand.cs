@@ -14,8 +14,7 @@ namespace Volte.Commands.Modules
         [RequireGuildAdmin]
         public Task<ActionResult> ModLogAsync(CachedTextChannel c)
         {
-            Context.GuildData.Configuration.Moderation.ModActionLogChannel = c.Id;
-            Db.UpdateData(Context.GuildData);
+            Db.ModifyData(Context.Guild, data => data.Configuration.Moderation.ModActionLogChannel = c.Id);
             return Ok($"Set {c.Mention} as the channel to be used by mod log.");
         }
     }

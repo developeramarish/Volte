@@ -19,7 +19,7 @@ namespace Gommon
         public static string GetUsage(this Command c, VolteContext ctx)
             => (c.Remarks ?? "No usage provided")
                 .Replace(c.Name.ToLower(), (c.FullAliases.Count > 1 ? $"({c.FullAliases.Join('|')})" : c.Name).ToLower())
-                .Insert(0, ctx.GuildData.Configuration.CommandPrefix);
+                .Insert(0, ctx.Db.GetData(ctx.Guild.Id).Configuration.CommandPrefix);
 
         internal static Task<List<Type>> AddTypeParsersAsync(this VolteBot bot)
         {

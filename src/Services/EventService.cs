@@ -60,7 +60,7 @@ namespace Volte.Services
             if (Config.EnabledFeatures.PingChecks)
                 await _pingchecks.DoAsync(evnt);
 
-            var data = _db.GetData(evnt.Message.Guild);
+            var data = _db.GetData(evnt.Message.Guild.Id);
 
             var prefixes = new List<string>
             {
@@ -78,7 +78,7 @@ namespace Volte.Services
                 sw.Stop();
                 await _commandsService.OnCommandAsync(new CommandCalledEventArgs(result, context));
 
-                if (!context.GuildData.Configuration.DeleteMessageOnCommand) return;
+                if (!context.Db.GetData(context.Guild.Id).Configuration.DeleteMessageOnCommand) return;
                 if (!await evnt.Message.TryDeleteAsync())
                     _logger.Warn(LogSource.Service, $"Could not act upon the DeleteMessageOnCommand setting for {context.Guild.Name} as the bot is missing the required permission, or another error occured.");
             }
