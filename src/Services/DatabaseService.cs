@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using Disqord;
 using LiteDB;
 using Volte.Core;
@@ -24,26 +22,17 @@ namespace Volte.Services
             _logger = loggingService;
         }
 
-        public GuildData GetData(CachedGuild guild) => GetData(guild.Id.RawValue);
+        public GuildData GetData(CachedGuild guild) => GetData(guild.Id);
 
-        public GuildData GetData(ulong id)
+        public GuildData GetData(Snowflake id)
         {
-            try
-            {
-                _logger.Debug(LogSource.Volte, $"Getting data for guild {id}.");
-                var coll = Database.GetCollection<GuildData>("guilds");
-                var conf = coll.FindOne(x => x.Id == id);
-                if (conf != null) return conf;
-                var newConf = Create(_bot.GetGuild(id));
-                coll.Insert(newConf);
-                return newConf;
-            }
-            catch (Exception e)
-            {
-                _logger.Error(LogSource.Service, e.Message, e);
-                return null;
-            }
-
+            _logger.Debug(LogSource.Volte, $"Getting data for guild {id}.");
+            var coll = Database.GetCollection<GuildData>("guilds");
+            var conf = coll.FindOne(g => g.Id.Equals(id.RawValue));
+            if (!(conf is null)) return conf;
+            var newConf = Create(_bot.GetGuild(id));
+            coll.Insert(newConf);
+            return newConf;
         }
 
         public void UpdateData(GuildData newConfig)
@@ -57,7 +46,7 @@ namespace Volte.Services
         private static GuildData Create(CachedGuild guild)
             => new GuildData
             {
-                Id = guild.Id,
+                Id = guild.Id.RawValue,
                 OwnerId = guild.OwnerId.RawValue,
                 Configuration = new GuildConfiguration
                 {

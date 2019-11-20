@@ -79,15 +79,15 @@ namespace Gommon
         public static Task RegisterVolteEventHandlersAsync(this VolteBot bot)
         {
             bot.Get<WelcomeService>(out var welcome);
+            bot.Get<CommandsService>(out var commands);
             bot.Get<GuildService>(out var guild);
             bot.Get<EventService>(out var evt);
             bot.Get<AutoroleService>(out var autorole);
             bot.Get<LoggingService>(out var logger);
             return Executor.ExecuteAsync(() =>
             {
-                bot.GuildAvailable += async args => await guild.OnAvailableAsync(args);
-                bot.JoinedGuild += async args => await guild.OnJoinAsync(args);
-                bot.LeftGuild += async args => await guild.OnLeaveAsync(args);
+                bot.JoinedGuild += args => guild.OnJoinAsync(args);
+                bot.LeftGuild += args => guild.OnLeaveAsync(args);
                 
                 bot.MemberJoined += async args =>
                 {
@@ -102,7 +102,7 @@ namespace Gommon
                         await welcome.LeaveAsync(args);
                 };
                 
-                bot.Ready += async args => await evt.OnReady(args);
+                bot.Ready += args => evt.OnReady(args);
                 bot.Logger.MessageLogged += async (_, args) => await logger.DoAsync(new LogEventArgs(args));
 
                 return Task.CompletedTask;

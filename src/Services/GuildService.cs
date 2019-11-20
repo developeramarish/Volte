@@ -16,15 +16,12 @@ namespace Volte.Services
     {
         private readonly LoggingService _logger;
         private readonly VolteBot _bot;
-        private readonly DatabaseService _db;
 
         public GuildService(LoggingService loggingService,
-            VolteBot bot,
-            DatabaseService databaseService)
+            VolteBot bot)
         {
             _logger = loggingService;
             _bot = bot;
-            _db = databaseService;
         }
 
         public async Task OnJoinAsync(JoinedGuildEventArgs args)
@@ -112,12 +109,6 @@ namespace Volte.Services
                 .WithThumbnailUrl(args.Guild.GetIconUrl())
                 .WithErrorColor()
                 .SendToAsync(channel);
-        }
-
-        public Task OnAvailableAsync(GuildAvailableEventArgs args)
-        {
-            _ = _db.GetData(args.Guild);
-            return Task.CompletedTask;
         }
     }
 }
