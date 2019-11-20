@@ -12,7 +12,16 @@ namespace Volte.Core.Models
         public GuildData Retrieve(Snowflake id) 
             => Guilds.FirstOrDefault(x => x.Id == id.RawValue);
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options) 
-            => options.UseSqlite("Data Source=Volte.db");
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlite("Data Source=data/Volte.db");
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<GuildData>()
+                .Property(g => g.Id)
+                .IsRequired();
+        }
     }
 }
