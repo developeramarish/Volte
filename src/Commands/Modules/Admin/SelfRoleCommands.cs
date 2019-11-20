@@ -16,11 +16,11 @@ namespace Volte.Commands.Modules
         [RequireGuildAdmin]
         public Task<ActionResult> SelfRoleAddAsync([Remainder] CachedRole role)
         {
-            var target = Db.GetData(Context.Guild.Id).Extras.SelfRoles
-                .FirstOrDefault(x => x.EqualsIgnoreCase(role.Name));
+            var target = Context.GuildData.Extras.SelfRoles.FirstOrDefault(x => x.EqualsIgnoreCase(role.Name));
             if (target is null)
             {
-                Db.ModifyData(Context.Guild, data => data.Extras.SelfRoles.Add(role.Name));
+                Context.GuildData.Extras.SelfRoles.Add(role.Name);
+                Db.UpdateData(Context.GuildData);
                 return Ok($"Successfully added **{role.Name}** to the Self Roles list for this guild.");
             }
 
@@ -34,22 +34,25 @@ namespace Volte.Commands.Modules
         [RequireGuildAdmin]
         public Task<ActionResult> SelfRoleRemoveAsync([Remainder] CachedRole role)
         {
-            if (Db.GetData(Context.Guild.Id).Extras.SelfRoles.ContainsIgnoreCase(role.Name))
+
+            if (Context.GuildData.Extras.SelfRoles.ContainsIgnoreCase(role.Name))
             {
-                Db.ModifyData(Context.Guild, data => data.Extras.SelfRoles.Remove(role.Name));
+                Context.GuildData.Extras.SelfRoles.Remove(role.Name);
+                Db.UpdateData(Context.GuildData);
                 return Ok($"Removed **{role.Name}** from the Self Roles list for this guild.");
             }
 
             return BadRequest($"The Self Roles list for this guild doesn't contain **{role.Name}**.");
         }
 
-        [Command("SelfRoleClear", "SrC", "SrClear", "SelfRoleC")]
+        [Command("SelfRoleClear", "SrC", "SrClear", "SelfroleC")]
         [Description("Clears the self role list for this guild.")]
         [Remarks("selfroleclear")]
         [RequireGuildAdmin]
         public Task<ActionResult> SelfRoleClearAsync()
         {
-            Db.ModifyData(Context.Guild, data => data.Extras.SelfRoles.Clear());
+            Context.GuildData.Extras.SelfRoles.Clear();
+            Db.UpdateData(Context.GuildData);
             return Ok("Successfully cleared all Self Roles for this guild.");
         }
     }

@@ -135,11 +135,11 @@ namespace Volte.Core
             var prefixes = new []
             {
                 message.Client.CurrentUser.Mention, 
-                db.GetData(message.Guild.Id).Configuration.CommandPrefix
+                db.GetData(message.Guild.Id.RawValue).Configuration.CommandPrefix
             };
-            return CommandUtilities.HasAnyPrefix(message.Content, prefixes, out var p, out var o)
-                ? new ValueTask<(string Prefix, string Output)>((p, o))
-                : new ValueTask<(string Prefix, string Output)>(default((string, string)));
+            return CommandUtilities.HasAnyPrefix(message.Content, prefixes, out var p, out var o) 
+                ? new ValueTask<(string Prefix, string Output)>((p, o)) 
+                : default;
         }
     }
 }

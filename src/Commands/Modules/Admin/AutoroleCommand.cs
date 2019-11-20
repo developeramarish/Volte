@@ -14,7 +14,8 @@ namespace Volte.Commands.Modules
         [RequireGuildAdmin]
         public Task<ActionResult> AutoroleAsync([Remainder] CachedRole role)
         {
-            Db.ModifyData(Context.Guild, data => data.Configuration.Autorole = role.Id);
+            Context.GuildData.Configuration.Autorole = role.Id;
+            Db.UpdateData(Context.GuildData);
             return Ok($"Successfully set **{role.Name}** as the role to be given to members upon joining this guild.");
         }
     }

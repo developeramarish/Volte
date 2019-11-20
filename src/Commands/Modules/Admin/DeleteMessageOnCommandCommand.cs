@@ -13,7 +13,8 @@ namespace Volte.Commands.Modules
         [RequireGuildAdmin]
         public Task<ActionResult> DeleteMessageOnCommandAsync(bool enabled)
         {
-            Db.ModifyData(Context.Guild, data => data.Configuration.DeleteMessageOnCommand = enabled);
+            Context.GuildData.Configuration.DeleteMessageOnCommand = enabled;
+            Db.UpdateData(Context.GuildData);
             return Ok(enabled
                 ? "Enabled DeleteMessageOnCommand in this guild."
                 : "Disabled DeleteMessageOnCommand in this guild.");
@@ -25,7 +26,8 @@ namespace Volte.Commands.Modules
         [Remarks("deletemessageontagcommand {true|false}")]
         public Task<ActionResult> DeleteMessageOnTagCommand(bool enabled)
         {
-            Db.ModifyData(Context.Guild, data => data.Configuration.DeleteMessageOnTagCommandInvocation = enabled);
+            Context.GuildData.Configuration.DeleteMessageOnTagCommandInvocation = enabled;
+            Db.UpdateData(Context.GuildData);
             return Ok(enabled
                 ? "Enabled DeleteMessageOnTagCommand in this guild."
                 : "Disabled DeleteMessageOnTagCommand in this guild.");

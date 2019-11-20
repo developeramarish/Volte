@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 using Disqord;
@@ -23,16 +22,14 @@ namespace Volte.Commands.Modules
         [RequireGuildModerator]
         public async Task<ActionResult> WarnAsync([CheckHierarchy] CachedMember member, [Remainder] string reason)
         {
-            Db.ModifyData(Context.Guild, data =>
+            Context.GuildData.Extras.Warns.Add(new Warn
             {
-                data.Extras.Warns.Add(new Warn
-                {
-                    User = member.Id,
-                    Reason = reason,
-                    Issuer = Context.User.Id,
-                    Date = Context.Now
-                });
+                User = member.Id,
+                Reason = reason,
+                Issuer = Context.User.Id,
+                Date = Context.Now
             });
+            Db.UpdateData(Context.GuildData);
 
             if (!await member.TrySendMessageAsync(
                 embed: Context.CreateEmbed($"You've been warned in **{Context.Guild.Name}** for **{reason}**.")))
@@ -56,7 +53,7 @@ namespace Volte.Commands.Modules
         [RequireGuildModerator]
         public Task<ActionResult> WarnsAsync(CachedMember member)
         {
-            var warns = Db.GetData(Context.Guild.Id).Extras.Warns.Where(x => x.User == member.Id).Take(10);
+            var warns = Db.GetData(Context.Guild).Extras.Warns.Where(x => x.User == member.Id).Take(10);
             return Ok(new StringBuilder()
                 .AppendLine(
                     "Showing the last 10 warnings, or less if the member doesn't have 10 yet, or none if the member's record is clean.")
@@ -71,8 +68,9 @@ namespace Volte.Commands.Modules
         [RequireGuildModerator]
         public async Task<ActionResult> ClearWarnsAsync(CachedMember member)
         {
-            var newWarnList = Db.GetData(Context.Guild.Id).Extras.Warns.Where(x => x.User != member.Id).ToList();
-            Db.ModifyData(Context.Guild, data => data.Extras.Warns = newWarnList);
+            var newWarnList = Context.GuildData.Extras.Warns.Where(x => x.User != member.Id).ToList();
+            Context.GuildData.Extras.Warns = newWarnList;
+            Db.UpdateData(Context.GuildData);
 
             if (!await member.TrySendMessageAsync(
                 embed: Context.CreateEmbed($"Your warns in **{Context.Guild.Name}** have been cleared. Hooray!")))
@@ -81,7 +79,7 @@ namespace Volte.Commands.Modules
                     $"encountered a 403 when trying to message {member}!");
             }
 
-            return Ok($"Cleared **{newWarnList.Count}** warnings for **{member.Mention}**.", _ =>
+            return Ok($"Cleared **{newWarnList.Count}** warnings for **{member}**.", _ =>
                 ModLogService.DoAsync(ModActionEventArgs.New
                     .WithDefaultsFromContext(Context)
                     .WithActionType(ModActionType.ClearWarns)

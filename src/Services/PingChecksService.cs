@@ -29,7 +29,7 @@ namespace Volte.Services
 
         private async Task CheckMessageAsync(MessageReceivedEventArgs args)
         {
-            var data = _db.GetData(args.Message.Guild.Id);
+            var data = _db.GetData(args.Message.Guild);
             if (data.Configuration.Moderation.MassPingChecks &&
                 !args.Message.Author.Cast<CachedMember>().IsAdmin(_provider))
             {

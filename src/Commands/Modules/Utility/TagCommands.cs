@@ -16,14 +16,11 @@ namespace Volte.Commands.Modules
         public Task<ActionResult> TagAsync([Remainder] Tag tag)
         {
             tag.Uses += 1;
-            Db.ModifyData(Context.Guild.Id, x =>
-                {
-                    x.Extras.Tags.First(t => t.Name == tag.Name && t.Response.EqualsIgnoreCase(tag.Response)).Uses += 1;
-                });
+            Db.UpdateData(Context.GuildData);
 
             return Ok(tag.FormatContent(Context), async _ =>
             {
-                if (Db.GetData(Context.Guild.Id).Configuration.DeleteMessageOnTagCommandInvocation)
+                if (Context.GuildData.Configuration.DeleteMessageOnTagCommandInvocation)
                 {
                     await Context.Message.TryDeleteAsync();
                 }
@@ -49,13 +46,10 @@ namespace Volte.Commands.Modules
         [Description("Lists all available tags in the current guild.")]
         [Remarks("tags")]
         public Task<ActionResult> TagsAsync()
-        {
-            var data = Db.GetData(Context.Guild.Id);
-            return Ok(Context.CreateEmbedBuilder(
-                data.Extras.Tags.Count == 0
+            => Ok(Context.CreateEmbedBuilder(
+                Context.GuildData.Extras.Tags.Count == 0
                     ? "None"
-                    : $"`{data.Extras.Tags.Select(x => x.Name).Join("`, `")}`"
+                    : $"`{Context.GuildData.Extras.Tags.Select(x => x.Name).Join("`, `")}`"
             ).WithTitle($"Available Tags for {Context.Guild.Name}"));
-        }
     }
 }

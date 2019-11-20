@@ -25,6 +25,6 @@ namespace Volte.Core.Models.Guild
         public ulong ModActionCaseNumber { get; set; }
         
         [JsonPropertyName("auto_parse_quote_urls")]
-        public bool AutoParseJumpUrls { get; set; }
+        public bool AutoParseQuoteUrls { get; set; }
     }
 }

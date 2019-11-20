@@ -116,7 +116,7 @@ namespace Volte.Services
 
         public Task OnAvailableAsync(GuildAvailableEventArgs args)
         {
-            _ = _db.GetData(args.Guild.Id);
+            _ = _db.GetData(args.Guild);
             return Task.CompletedTask;
         }
     }

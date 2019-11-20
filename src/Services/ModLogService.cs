@@ -27,13 +27,12 @@ namespace Volte.Services
 
         private async Task OnModActionCompleteAsync(ModActionEventArgs args)
         {
-            var d = args.Context.Db.GetData(args.Context.Guild.Id);
             if (!Config.EnabledFeatures.ModLog)
                 return;
 
             _logger.Debug(LogSource.Volte, "Attempting to post a modlog message.");
 
-            var c = args.Guild.GetTextChannel(d.Configuration.Moderation.ModActionLogChannel);
+            var c = args.Guild.GetTextChannel(args.Context.GuildData.Configuration.Moderation.ModActionLogChannel);
             if (c is null)
             {
                 _logger.Debug(LogSource.Volte, "Resulting channel was either not set or invalid; aborting.");
@@ -76,7 +75,7 @@ namespace Volte.Services
                     IncrementAndSave(args.Context);
                     await e.WithDescription(sb.AppendLine($"**Action:** {args.ActionType}")
                             .AppendLine($"**Moderator:** {args.Moderator} ({args.Moderator.Id})")
-                            .AppendLine($"**Case:** {d.Extras.ModActionCaseNumber}")
+                            .AppendLine($"**Case:** {args.Context.GuildData.Extras.ModActionCaseNumber}")
                             .AppendLine($"**User:** {args.TargetUser} ({args.TargetId})")
                             .AppendLine($"**Reason:** {args.Reason}")
                             .AppendLine($"**Time:** {args.Time.FormatFullTime()}, {args.Time.FormatDate()}")
@@ -91,7 +90,7 @@ namespace Volte.Services
                     IncrementAndSave(args.Context);
                     await e.WithDescription(sb.AppendLine($"**Action:** {args.ActionType}")
                         .AppendLine($"**Moderator:** {args.Moderator} ({args.Moderator.Id})")
-                        .AppendLine($"**Case:** {d.Extras.ModActionCaseNumber}")
+                        .AppendLine($"**Case:** {args.Context.GuildData.Extras.ModActionCaseNumber}")
                         .AppendLine($"**User:** {args.TargetUser} ({args.TargetId})")
                         .AppendLine($"**Reason:** {args.Reason}")
                         .AppendLine($"**Time:** {args.Time.FormatFullTime()}, {args.Time.FormatDate()}")
@@ -118,7 +117,7 @@ namespace Volte.Services
                     IncrementAndSave(args.Context);
                     await e.WithDescription(sb.AppendLine($"**Action:** {args.ActionType}")
                         .AppendLine($"**Moderator:** {args.Moderator} ({args.Moderator.Id})")
-                        .AppendLine($"**Case:** {d.Extras.ModActionCaseNumber}")
+                        .AppendLine($"**Case:** {args.Context.GuildData.Extras.ModActionCaseNumber}")
                         .AppendLine($"**User:** {args.TargetUser} ({args.TargetId})")
                         .AppendLine($"**Reason:** {args.Reason}")
                         .AppendLine($"**Time:** {args.Time.FormatFullTime()}, {args.Time.FormatDate()}")
@@ -133,7 +132,7 @@ namespace Volte.Services
                     IncrementAndSave(args.Context);
                     await e.WithDescription(sb.AppendLine($"**Action:** {args.ActionType}")
                         .AppendLine($"**Moderator:** {args.Moderator} ({args.Moderator.Id})")
-                        .AppendLine($"**Case:** {d.Extras.ModActionCaseNumber}")
+                        .AppendLine($"**Case:** {args.Context.GuildData.Extras.ModActionCaseNumber}")
                         .AppendLine($"**User:** {args.TargetUser} ({args.TargetId})")
                         .AppendLine($"**Reason:** {args.Reason}")
                         .AppendLine($"**Time:** {args.Time.FormatFullTime()}, {args.Time.FormatDate()}")
@@ -149,7 +148,7 @@ namespace Volte.Services
                     await e.WithDescription(sb.AppendLine()
                         .AppendLine($"**Action:** {args.ActionType}")
                         .AppendLine($"**Moderator:** {args.Moderator} ({args.Moderator.Id})")
-                        .AppendLine($"**Case:** {d.Extras.ModActionCaseNumber}")
+                        .AppendLine($"**Case:** {args.Context.GuildData.Extras.ModActionCaseNumber}")
                         .AppendLine($"**User:** {args.TargetId}")
                         .AppendLine($"**Time:** {args.Time.FormatFullTime()}, {args.Time.FormatDate()}")
                         .ToString())
@@ -168,7 +167,8 @@ namespace Volte.Services
 
         private void IncrementAndSave(VolteContext ctx)
         {
-            _db.ModifyData(ctx.Guild.Id, x => x.Extras.ModActionCaseNumber += 1);
+            ctx.GuildData.Extras.ModActionCaseNumber += 1;
+            _db.UpdateData(ctx.GuildData);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Volte.Services
 
         private async Task ApplyRoleAsync(MemberJoinedEventArgs args)
         {
-            var data = _db.GetData(args.Member.Guild.Id);
+            var data = _db.GetData(args.Member.Guild);
             var targetRole = args.Member.Guild.GetRole(data.Configuration.Autorole);
             if (targetRole is null)
             {

@@ -14,8 +14,7 @@ namespace Volte.Commands.Modules
         [Remarks("iam {roleName}")]
         public async Task<ActionResult> IamAsync([Remainder] CachedRole role)
         {
-            var d = Db.GetData(Context.Guild.Id);
-            if (!d.Extras.SelfRoles.Any(x => x.EqualsIgnoreCase(role.Name)))
+            if (!Context.GuildData.Extras.SelfRoles.Any(x => x.EqualsIgnoreCase(role.Name)))
             {
                 return BadRequest($"The role **{role.Name}** isn't in the self roles list for this guild.");
             }

@@ -9,11 +9,12 @@ namespace Volte.Commands.Modules
     {
         [Command("GuildPrefix", "Gp", "ServerPrefix", "Sp")]
         [Description("Sets the command prefix for this guild.")]
-        [Remarks("guildprefix {newPrefix}")]
+        [Remarks("serverprefix {newPrefix}")]
         [RequireGuildAdmin]
-        public Task<ActionResult> GuildPrefixAsync([Remainder] string newPrefix)
+        public Task<ActionResult> ServerPrefixAsync([Remainder] string newPrefix)
         {
-            Db.ModifyData(Context.Guild, data => data.Configuration.CommandPrefix = newPrefix);
+            Context.GuildData.Configuration.CommandPrefix = newPrefix;
+            Db.UpdateData(Context.GuildData);
             return Ok($"Set this guild's prefix to **{newPrefix}**.");
         }
     }

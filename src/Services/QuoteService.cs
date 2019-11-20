@@ -33,8 +33,8 @@ namespace Volte.Services
 
         private async Task OnMessageReceivedAsync(MessageReceivedEventArgs args)
         {
-            var ctx = VolteContext.FromMessageReceivedEventArgs(args);
-            if (!ctx.Db.GetData(ctx.Guild.Id).Extras.AutoParseJumpUrls) return;
+            var ctx = VolteContext.Create(_bot, string.Empty, args.Message.Cast<CachedUserMessage>());
+            if (!ctx.GuildData.Extras.AutoParseQuoteUrls) return;
             foreach (Match match in JumpUrlPattern.Matches(args.Message.Content))
             {
                 if (ulong.TryParse(match.Groups["GuildId"].Value, out _)

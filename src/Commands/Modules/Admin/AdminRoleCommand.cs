@@ -14,7 +14,8 @@ namespace Volte.Commands.Modules
         [RequireGuildAdmin]
         public Task<ActionResult> AdminRoleAsync([Remainder] CachedRole role)
         {
-            Db.ModifyData(Context.Guild.Id, x => x.Configuration.Moderation.AdminRole = role.Id);
+            Context.GuildData.Configuration.Moderation.AdminRole = role.Id;
+            Db.UpdateData(Context.GuildData);
             return Ok($"Set **{role.Name}** as the Admin role for this guild.");
         }
     }
