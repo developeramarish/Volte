@@ -8,11 +8,10 @@ using Gommon;
 using Volte.Commands;
 using Volte.Core;
 using Volte.Core.Models;
-using Volte.Core.Models.EventArgs;
 
 namespace Volte.Services
 {
-    public sealed class AntilinkService : VolteEventService
+    public sealed class AntilinkService : VolteEventService<MessageReceivedEventArgs>
     {
         private readonly Regex _invitePattern =
             new Regex(@"discord(?:\.gg|\.io|\.me|app\.com\/invite)\/([\w\-]+)", RegexOptions.Compiled);
@@ -27,8 +26,8 @@ namespace Volte.Services
             _bot = bot;
         } 
 
-        public override Task DoAsync(EventArgs args) 
-            => CheckMessageAsync(args.Cast<MessageReceivedEventArgs>());
+        public override Task DoAsync(MessageReceivedEventArgs args) 
+            => CheckMessageAsync(args);
 
 
         private async Task CheckMessageAsync(MessageReceivedEventArgs args)

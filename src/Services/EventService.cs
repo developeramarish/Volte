@@ -60,7 +60,7 @@ namespace Volte.Services
             if (Config.EnabledFeatures.PingChecks)
                 await _pingchecks.DoAsync(evnt);
 
-            var data = _db.GetData(evnt.Message.Guild);
+            var data = _db.GetData(evnt.Message.Guild.Id.RawValue);
 
             var prefixes = new List<string>
             {
@@ -125,7 +125,7 @@ namespace Volte.Services
                         await guild.LeaveAsync();
                     }
 
-                    _ = _db.GetData(guild); //ensuring all guilds have data available to prevent exceptions later on 
+                    _ = _db.GetData(guild.Id.RawValue); //ensuring all guilds have data available to prevent exceptions later on 
                 }
             });
 

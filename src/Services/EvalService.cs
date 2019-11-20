@@ -71,7 +71,7 @@ namespace Volte.Services
             {
                 Context = ctx,
                 Bot = _bot,
-                Data = _db.GetData(ctx.Guild),
+                Data = _db.GetData(ctx.Guild.Id.RawValue),
                 Logger = _logger,
                 CommandService = _commands,
                 DatabaseService = _db,

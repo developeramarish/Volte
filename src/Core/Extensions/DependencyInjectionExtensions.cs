@@ -28,9 +28,8 @@ namespace Gommon
         {
             //get all the classes that are Volte[Event]Services, aren't abstract, and don't have the System.ObsoleteAttribute attribute.
             foreach (var service in Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => !t.HasAttribute<ObsoleteAttribute>() && (
-                            t.Inherits<VolteEventService>() 
-                            || t.Inherits<VolteService>()) && !t.IsAbstract))
+                .Where(t => !t.HasAttribute<ObsoleteAttribute>() && 
+                            (t.Inherits<VolteService>()) && !t.IsAbstract))
             {
                 coll.TryAddSingleton(service);
             }

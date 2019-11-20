@@ -1,18 +1,15 @@
-using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Disqord;
-using Disqord.Bot;
 using Disqord.Events;
 using Gommon;
 using Volte.Commands;
 using Volte.Core;
-using Volte.Core.Models.EventArgs;
 
 namespace Volte.Services
 {
     //thanks MODiX for the idea and some of the code (definitely the regex lol)
-    public class QuoteService : VolteEventService
+    public class QuoteService : VolteEventService<MessageReceivedEventArgs>
     {
         private readonly VolteBot _bot;
         private readonly DatabaseService _db;
@@ -28,8 +25,8 @@ namespace Volte.Services
             @"(?<Prelink>\S+\s+\S*)?https?://(?:(?:ptb|canary)\.)?discordapp\.com/channels/(?<GuildId>\d+)/(?<ChannelId>\d+)/(?<MessageId>\d+)/?(?<Postlink>\S*\s+\S+)?",
             RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-        public override Task DoAsync(EventArgs args)
-            => OnMessageReceivedAsync(args.Cast<MessageReceivedEventArgs>());
+        public override Task DoAsync(MessageReceivedEventArgs args)
+            => OnMessageReceivedAsync(args);
 
         private async Task OnMessageReceivedAsync(MessageReceivedEventArgs args)
         {

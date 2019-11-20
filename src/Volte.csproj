@@ -29,7 +29,7 @@
         <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\submodules\Disqord\src\Disqord.Bot\Disqord.Bot.csproj" />
-      <ProjectReference Include="..\submodules\Disqord\src\Disqord\Disqord.csproj" />
+      <ProjectReference Include="..\lib\Disqord\src\Disqord.Bot\Disqord.Bot.csproj" />
+      <ProjectReference Include="..\lib\Disqord\src\Disqord\Disqord.csproj" />
     </ItemGroup>
 </Project>

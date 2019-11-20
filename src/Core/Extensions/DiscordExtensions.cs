@@ -21,19 +21,19 @@ namespace Gommon
         public static bool IsModerator(this CachedMember user, IServiceProvider provider)
         {
             provider.Get<DatabaseService>(out var db);
-            return HasRole(user, db.GetData(user.Guild).Configuration.Moderation.ModRole) ||
+            return HasRole(user, db.GetData(user.Guild.Id.RawValue).Configuration.Moderation.ModRole) ||
                    IsAdmin(user, provider) ||
                    IsGuildOwner(user);
         }
 
         private static bool HasRole(this CachedMember user, ulong roleId)
-            => user.Roles.Select(x => x.Value.Id).Contains(new Snowflake(roleId));
+            => user.Roles.Any(x => x.Key.Equals(roleId));
 
         public static bool IsAdmin(this CachedMember user, IServiceProvider provider)
         {
             provider.Get<DatabaseService>(out var db);
             return HasRole(user,
-                       db.GetData(user.Guild).Configuration.Moderation.AdminRole) ||
+                       db.GetData(user.Guild.Id.RawValue).Configuration.Moderation.AdminRole) ||
                    IsGuildOwner(user);
         }
 

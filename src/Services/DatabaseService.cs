@@ -22,17 +22,24 @@ namespace Volte.Services
             _logger = loggingService;
         }
 
-        public GuildData GetData(CachedGuild guild) => GetData(guild.Id);
-
-        public GuildData GetData(Snowflake id)
+        public GuildData GetData(ulong id)
         {
-            _logger.Debug(LogSource.Volte, $"Getting data for guild {id}.");
-            var coll = Database.GetCollection<GuildData>("guilds");
-            var conf = coll.FindOne(g => g.Id.Equals(id.RawValue));
-            if (!(conf is null)) return conf;
-            var newConf = Create(_bot.GetGuild(id));
-            coll.Insert(newConf);
-            return newConf;
+            try
+            {
+                _logger.Debug(LogSource.Volte, $"Getting data for guild {id}.");
+                var coll = Database.GetCollection<GuildData>("guilds");
+                var conf = coll.FindOne(g => g.Id.Equals(id));
+                if (!(conf is null)) return conf;
+                var newConf = Create(_bot.GetGuild(id));
+                coll.Insert(newConf);
+                return newConf;
+            }
+            catch (Exception e)
+            {
+                _logger.Critical(LogSource.Service, string.Empty, e);
+                return null;
+            }
+
         }
 
         public void UpdateData(GuildData newConfig)

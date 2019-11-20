@@ -1,14 +1,12 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Disqord.Events;
 using Gommon;
 using Volte.Core.Models;
-using Volte.Core.Models.EventArgs;
 
 namespace Volte.Services
 {
-    public sealed class BlacklistService : VolteEventService
+    public sealed class BlacklistService : VolteEventService<MessageReceivedEventArgs>
     {
         private readonly LoggingService _logger;
         private readonly DatabaseService _db;
@@ -20,12 +18,12 @@ namespace Volte.Services
         } 
 
 
-        public override Task DoAsync(EventArgs args) 
-            => CheckMessageAsync(args.Cast<MessageReceivedEventArgs>());
+        public override Task DoAsync(MessageReceivedEventArgs args) 
+            => CheckMessageAsync(args);
 
         private async Task CheckMessageAsync(MessageReceivedEventArgs args)
         {
-            var data = _db.GetData(args.Message.Guild);
+            var data = _db.GetData(args.Message.Guild.Id.RawValue);
             if (!data.Configuration.Moderation.Blacklist.Any()) return;
             _logger.Debug(LogSource.Volte, "Checking a message for blacklisted words.");
             foreach (var word in data.Configuration.Moderation.Blacklist)

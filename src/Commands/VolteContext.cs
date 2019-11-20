@@ -32,7 +32,7 @@ namespace Volte.Commands
             Member = msg.Author.Cast<CachedMember>();
             Message = msg;
             User = msg.Author.Cast<CachedMember>();
-            GuildData = db.GetData(Guild);
+            GuildData = db.GetData(Guild.Id.RawValue);
             Now = DateTimeOffset.UtcNow;
         }
 

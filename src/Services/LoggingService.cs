@@ -16,7 +16,7 @@ using Console = Colorful.Console;
 
 namespace Volte.Services
 {
-    public sealed class LoggingService : VolteEventService
+    public sealed class LoggingService : VolteEventService<LogEventArgs>
     {
         private readonly VolteBot _bot;
         private readonly HttpClient _http;
@@ -31,9 +31,9 @@ namespace Volte.Services
             _lock = new object();
         }
 
-        public override Task DoAsync(EventArgs args)
+        public override Task DoAsync(LogEventArgs args)
         {
-            Log(args.Cast<LogEventArgs>());
+            Log(args);
             return Task.CompletedTask;
         }
 

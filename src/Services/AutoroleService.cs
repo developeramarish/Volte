@@ -1,12 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Disqord.Events;
-using Gommon;
 using Volte.Core.Models;
 
 namespace Volte.Services
 {
-    public sealed class AutoroleService : VolteEventService
+    public sealed class AutoroleService : VolteEventService<MemberJoinedEventArgs>
     {
         private readonly LoggingService _logger;
         private readonly DatabaseService _db;
@@ -18,12 +16,12 @@ namespace Volte.Services
             _db = databaseService;
         }
 
-        public override Task DoAsync(EventArgs args)
-            => ApplyRoleAsync(args.Cast<MemberJoinedEventArgs>());
+        public override Task DoAsync(MemberJoinedEventArgs args)
+            => ApplyRoleAsync(args);
 
         private async Task ApplyRoleAsync(MemberJoinedEventArgs args)
         {
-            var data = _db.GetData(args.Member.Guild);
+            var data = _db.GetData(args.Member.Guild.Id.RawValue);
             var targetRole = args.Member.Guild.GetRole(data.Configuration.Autorole);
             if (targetRole is null)
             {

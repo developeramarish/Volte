@@ -53,7 +53,7 @@ namespace Volte.Commands.Modules
         [RequireGuildModerator]
         public Task<ActionResult> WarnsAsync(CachedMember member)
         {
-            var warns = Db.GetData(Context.Guild).Extras.Warns.Where(x => x.User == member.Id).Take(10);
+            var warns = Context.GuildData.Extras.Warns.Where(x => x.User == member.Id).Take(10);
             return Ok(new StringBuilder()
                 .AppendLine(
                     "Showing the last 10 warnings, or less if the member doesn't have 10 yet, or none if the member's record is clean.")
